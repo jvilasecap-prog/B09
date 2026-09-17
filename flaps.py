@@ -21,12 +21,12 @@ def flaps_calculation(wing):
     # ASSUMED VALUES:
     cf_c_ratio = 0.35/0.4 # [-]
     Swf_S_ratio = 0.3 # (TBD)
-    Delta_CL_max = 2.5 - wing["CL_max"]
+    Delta_CL_max = 2.5 - wing["CL max clean"]
     Delta_a0l_airfoil_landing = -15 # [deg]
     Delta_a0l_airfoil_takeoff = -10 # [deg]
     Lambda_hinge_line = 6/180 *math.pi # Needs calculations based on sweep angle etc.
 
-    c2_c1_ratio = c2_c1_ratio_calculation(cf_c_ratio, "single slotted fowler flap", wing["Chord"])
+    c2_c1_ratio = c2_c1_ratio_calculation(cf_c_ratio, "single slotted fowler flap", wing["MAC"])
 
     # Dictionary for values corresponding to type of flap
     flaps_dict = {
@@ -35,7 +35,7 @@ def flaps_calculation(wing):
             "max_flap_deflection": 40  # [deg]
         },
         "single slotted fowler flap": {
-            "Delta_Cl_max": 1.3 * c2_c1_ratio, # Fixed variable name & inversion
+            "Delta_Cl_max": 1.3 * c2_c1_ratio, 
             "max_flap_deflection": 40  # [deg]
         }
     }
@@ -60,7 +60,7 @@ def flaps_calculation(wing):
 
     # 4 - Add contributions
     
-    CL_max = wing["CL_max"] + Delta_CL_max
+    CL_max = wing["CL max clean"] + Delta_CL_max
     a0L = wing["a0L"] + Delta_a0L
 
     # 5 - create function CL
