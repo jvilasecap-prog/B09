@@ -69,4 +69,7 @@ def flaps_calculation(wing):
     A = CL_alpha_flapped
     B = -CL_alpha_flapped*a0L
 
+    # 5b - transformation of the csv plot
+    # for 
+
 

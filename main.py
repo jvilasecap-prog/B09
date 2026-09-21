@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import ISA
 
 # import python files as modules
 import flaps
@@ -19,7 +20,7 @@ for key, value in wing_unclean.items():
     except (ValueError, TypeError):
         wing[key] = value  
 
-print(wing)
+# print(wing)
 
 # 2 - append all design choices
 
@@ -40,3 +41,4 @@ wing.update({
 # 4 - iterative loop
 
 flaps.flaps_calculation(wing)
+matching_diagram.get_wing_graph(wing)
