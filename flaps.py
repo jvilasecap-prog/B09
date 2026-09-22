@@ -19,12 +19,12 @@ def c2_c1_ratio_calculation(cf_c_ratio, flap_type, c1):
 def flaps_calculation(wing):
 
     # ASSUMED VALUES:
-    cf_c_ratio = 0.35/0.4 # [-]
-    Swf_S_ratio = 0.3 # (TBD)
-    Delta_CL_max = 2.5 - wing["CL max clean"]
-    Delta_a0l_airfoil_landing = -15 # [deg]
+    cf_c_ratio = 0.35/0.4 # [-] (ADSEE)
+    hinge_position_fraction = 0.7 # c_hinge/c (NASA)
+    Delta_CL_max = 2.65 - wing["CL max clean"]
+    Delta_a0l_airfoil_landing = -15 # [deg] (ADSEE)
     Delta_a0l_airfoil_takeoff = -10 # [deg]
-    Lambda_hinge_line = 6/180 *math.pi # Needs calculations based on sweep angle etc.
+
 
     c2_c1_ratio = c2_c1_ratio_calculation(cf_c_ratio, "single slotted fowler flap", wing["MAC"])
 
@@ -46,6 +46,12 @@ def flaps_calculation(wing):
 
     # 1 - Delta_CL_max
 
+    # calculating hinge line sweep
+    Sweep_quarter_chord = math.radians(wing["Sweep quarter chord"])
+    A = wing["Aspect ratio"]
+    t = wing["Taper ratio"]
+    Lambda_hinge_line = math.atan(math.tan(Sweep_quarter_chord - 4*(hinge_position_fraction - 0.25)/A * (1-t)/(1+t))) # (NASA)
+
     Swf_S_ratio = Delta_CL_max/(0.9 * Delta_Cl_max * math.cos( Lambda_hinge_line ))
     print(Swf_S_ratio)
 
@@ -56,7 +62,7 @@ def flaps_calculation(wing):
     # 3 - CL_alpha_flapped
    
     S2_S1_ratio = 1 + Swf_S_ratio * (c2_c1_ratio - 1)
-    CL_alpha_flapped = S2_S1_ratio * wing["CL_alpha_clean"]
+    CL_alpha_flapped = S2_S1_ratio * wing["CL alpha clean"]
 
     # 4 - Add contributions
     
