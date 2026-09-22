@@ -21,7 +21,8 @@ def flaps_calculation(wing):
     # ASSUMED VALUES:
     cf_c_ratio = 0.35/0.4 # [-] (ADSEE)
     hinge_position_fraction = 0.7 # c_hinge/c (NASA)
-    Delta_CL_max = 2.65 - wing["CL max clean"]
+    Delta_CL_max_landing = 2.65 - wing["CL max clean"] # larger than CL
+    Delta_CL_max_takeoff = 0.8*Delta_CL_max_landing # larger than CL
     Delta_a0l_airfoil_landing = -15 # [deg] (ADSEE)
     Delta_a0l_airfoil_takeoff = -10 # [deg]
 
@@ -41,10 +42,9 @@ def flaps_calculation(wing):
     }
 
     flap = flaps_dict[wing["choices"]["flap_type"]]
-
     Delta_Cl_max = flap["Delta_Cl_max"]
 
-    # 1 - Delta_CL_max
+    """1 - Delta_CL_max"""
 
     # calculating hinge line sweep
     Sweep_quarter_chord = math.radians(wing["Sweep quarter chord"])
@@ -52,30 +52,38 @@ def flaps_calculation(wing):
     t = wing["Taper ratio"]
     Lambda_hinge_line = math.atan(math.tan(Sweep_quarter_chord - 4*(hinge_position_fraction - 0.25)/A * (1-t)/(1+t))) # (NASA)
 
-    Swf_S_ratio = Delta_CL_max/(0.9 * Delta_Cl_max * math.cos( Lambda_hinge_line ))
-    print(Swf_S_ratio)
+    Swf_S_ratio = Delta_CL_max_landing/(0.9 * Delta_Cl_max * math.cos( Lambda_hinge_line ))
+    # print(Swf_S_ratio)
 
-    # 2 - Delta_a0L
+    """2 - Delta_a0L calculation"""
 
-    Delta_a0L = Delta_a0l_airfoil_landing * Swf_S_ratio *  math.cos( Lambda_hinge_line )
+    Delta_a0L_landing = Delta_a0l_airfoil_landing * Swf_S_ratio *  math.cos( Lambda_hinge_line ) # [degrees]
+    Delta_a0L_takeoff = Delta_a0l_airfoil_takeoff * Swf_S_ratio *  math.cos( Lambda_hinge_line ) # [degrees]
 
-    # 3 - CL_alpha_flapped
+    """3 - CL alpha flapped calculation"""
    
-    S2_S1_ratio = 1 + Swf_S_ratio * (c2_c1_ratio - 1)
+    S2_S1_ratio = 1 + Swf_S_ratio * (c2_c1_ratio - 1) # (ADSEE ppt)
     CL_alpha_flapped = S2_S1_ratio * wing["CL alpha clean"]
 
-    # 4 - Add contributions
-    
-    CL_max = wing["CL max clean"] + Delta_CL_max
-    a0L = wing["a0L"] + Delta_a0L
+    """4 - Add contributions and create function"""
 
-    # 5 - create function CL
+    # print(Delta_CL_max, Delta_a0L, CL_alpha_flapped)
+    
+    CL_max_landing = wing["CL max clean"] + Delta_CL_max_landing
+    CL_max_takeoff = wing["CL max clean"] + Delta_CL_max_takeoff
+    a0L_L = wing["a0L"] + Delta_a0L_landing
+    a0L_TO = wing["a0L"] + Delta_a0L_takeoff
 
     # y = Ax + B
-    A = CL_alpha_flapped
-    B = -CL_alpha_flapped*a0L
+    A_L = CL_alpha_flapped
+    B_L = -CL_alpha_flapped*a0L_L
 
-    # 5b - transformation of the csv plot
-    # for 
+    A_TO = CL_alpha_flapped
+    B_TO = -CL_alpha_flapped*a0L_TO
+
+    """5 - angle for CL_max_landing=2.5"""
+
+    print((2.5 - B_L)/A_L)
+
 
 
