@@ -25,7 +25,8 @@ for key, value in wing_unclean.items():
 # 2 - append all design choices
 
 wing["choices"] = {
-    "flap_type": "single slotted fowler flap"
+    # "flap_type": "single slotted fowler flap"
+    "flap_type": "single slotted flap with slats"
 }
 
 # 3 - airfoil data input 
@@ -40,5 +41,11 @@ wing.update({
 
 # 4 - iterative loop
 
-# flaps.flaps_calculation(wing)
-matching_diagram.get_wing_graph(wing)
+[design_point, S, b, T] = matching_diagram.get_wing_graph(wing) # [[W_S, T_W], S, b, T]
+wing["Thrust-to-weight"] = design_point[1]
+wing["Wing loading (initial, before any fuel has been burned)"] = design_point[0]
+wing["Total thrust"] = T*1000
+wing["Wing area"] = S
+wing["Wing span"] = b
+
+flaps.flaps_calculation(wing)

@@ -183,48 +183,7 @@ def climb_gradient(wing, W_S, type):
     T_W = (wing["Number of engines"]/N_e) * (beta/alpha_t) * (climb_grad + 2*math.sqrt(C_D0/(math.pi*AR*e)))
     return T_W # placeholder for now
 
-def get_wing_graph(wing):
-
-    # 1 - get vertical constraints
-
-    minimum_speed_W_S = minimum_speed(wing)
-    landing_length_W_S = landing_length(wing)
-
-    # 2 - get remaining constraints points against w/s to plot
-
-    x = list(range(100,round(max(minimum_speed_W_S, landing_length_W_S))+200, 20)) # adaptive list for x (don't start from 0)
-    y = {
-        "Take-off field length": [],
-        "Cruise Speed": [],
-        "Climb rate": [],
-        "Climb gradient CS25.119": [],
-        "Climb gradient CS25.121a": [],
-        "Climb gradient CS25.121b": [],
-        "Climb gradient CS25.121c": [],
-        "Climb gradient CS25.121d": [],
-    }
-
-    for i in x:
-        for constraint in list(y.keys()):
-            y[constraint].append(switch_case_constraint(constraint, wing, i))
-
-    # 3 - get design point
-
-
-    design_point = [min(minimum_speed_W_S, landing_length_W_S), 0]
-    for constraint in list(y.keys()):
-        val = switch_case_constraint(constraint, wing, design_point[0])
-        if val > design_point[1]:
-            design_point[1] = val
-
-    # 4 - get required calculations for wings and thrust
-
-    S = wing["MTOM"]*9.80665/design_point[0] # [m^2]
-    b = math.sqrt(wing["Aspect ratio"]*S) # [m]
-    T = design_point[1]*9.80665*wing["MTOM"]/1000 # [kN]
-
-    # 5 - plot and print everything
-
+def plot_matching_diagram(x, y, design_point, landing_length_W_S, minimum_speed_W_S):
     plt.figure(figsize=(10, 6))
 
     for constraint, y_vals in y.items():
@@ -252,8 +211,50 @@ def get_wing_graph(wing):
     plt.tight_layout()
     plt.show()
 
+def get_wing_graph(wing):
+
+    # 1 - get vertical constraints
+
+    minimum_speed_W_S = minimum_speed(wing)
+    landing_length_W_S = landing_length(wing)
+
+    # 2 - get remaining constraints points against w/s to plot
+
+    x = list(range(100,round(max(minimum_speed_W_S, landing_length_W_S))+200, 20)) # adaptive list for x (don't start from 0)
+    y = {
+        "Take-off field length": [],
+        "Cruise Speed": [],
+        "Climb rate": [],
+        "Climb gradient CS25.119": [],
+        "Climb gradient CS25.121a": [],
+        "Climb gradient CS25.121b": [],
+        "Climb gradient CS25.121c": [],
+        "Climb gradient CS25.121d": [],
+    }
+
+    for i in x:
+        for constraint in list(y.keys()):
+            y[constraint].append(switch_case_constraint(constraint, wing, i))
+
+    # 3 - get design point
+
+    design_point = [min(minimum_speed_W_S, landing_length_W_S), 0]
+    for constraint in list(y.keys()):
+        val = switch_case_constraint(constraint, wing, design_point[0])
+        if val > design_point[1]:
+            design_point[1] = val
+
+    # 4 - get required calculations for wings and thrust
+
+    S = wing["MTOM"]*9.80665/design_point[0] # [m^2]
+    b = math.sqrt(wing["Aspect ratio"]*S) # [m]
+    T = design_point[1]*9.80665*wing["MTOM"]/1000 # [kN]
+
+    # 5 - plot and print everything
+
+    plot_matching_diagram(x, y, design_point, landing_length_W_S, minimum_speed_W_S)
+
     output = [design_point, S, b, T]
-    print(output)
 
     return output
 
