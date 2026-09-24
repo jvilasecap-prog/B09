@@ -11,13 +11,9 @@ EXCEL = Path(__file__).parent.resolve() / "wing_initial_planform.xlsx"
 
 EPSILON = 1e-9
 
-# Wing data
-LIFT_CURVE_SLOPE_APP = 2 * np.pi  # per radian in landing configuration
-LIFT_CURVE_SLOPE = 0.186 * 57.296  # per radian in cruise
-
 # Aileron data
-CHORD_FRACTION = 0.22
-AILERON_START_FRAC = 0.6
+CHORD_FRACTION = 0.15
+AILERON_START_FRAC = 0.65
 AILERON_END_FRAC = 0.86
 MAX_DEFLECTION = np.pi / 12
 
@@ -53,16 +49,17 @@ def wing_shape_calc() -> tuple[float, float]:
     return a, b
 
 
-def rolling_moment_coeff_calc(a: float, b: float) -> float:
+def rolling_moment_coeff_calc(a: float, b: float, CL_alpha: float) -> float:
     """
     Implements the yellow formula from ADSEE lecture 3 slide 57.
     a, b - shape of the wing according to wing_shape()
+    CL_alpha - lift curve slope
     """
 
     def antiderivative(y: float) -> float:
         return (a / 3) * y**3 + (b / 2) * y**2
 
-    factor = (2 * LIFT_CURVE_SLOPE * aileron_efficiency_calc(CHORD_FRACTION)) / (
+    factor = (2 * CL_alpha * aileron_efficiency_calc(CHORD_FRACTION)) / (
         wing_data["Wing area"] * wing_data["Wing Span"]
     )
     y_1 = AILERON_START_FRAC * wing_data["Wing Span"] / 2
@@ -70,14 +67,15 @@ def rolling_moment_coeff_calc(a: float, b: float) -> float:
     return factor * (antiderivative(y_2) - antiderivative(y_1))
 
 
-def roll_damping_coeff_calc(a: float, b: float) -> float:
+def roll_damping_coeff_calc(a: float, b: float, CL_alpha: float) -> float:
     """
     Implements the yellow formula from ADSEE lecture 3 slide 59.
     a, b - shape of the wing according to wing_shape()
+    CL_alpha - lift curve slope
     """
     y_max = wing_data["Wing Span"] / 2
 
-    factor = -(4 * (LIFT_CURVE_SLOPE + wing_data["Zero-lift drag coefficient"])) / (
+    factor = -(4 * (CL_alpha + wing_data["Zero-lift drag coefficient"])) / (
         wing_data["Wing area"] * (wing_data["Wing Span"] ** 2)
     )
 
@@ -125,26 +123,42 @@ def aileron_efficiency_calc(
     return float(result[0])
 
 
-def steady_state_roll_rate(velocity) -> float:
+def steady_state_roll_rate(velocity: float, CL_alpha: float) -> float:
     """
     Calculates steady state roll rate in radians per second at a given velocity
-    in meters per second.
+    in meters per second and at a given configuration identified by the lift
+    coefficient - angle of attack slope
 
     Parameters
-    ==========
+    ----------
     velocity: float
         velocity in meters per second to calculate the roll rate at
-    
+
+    CL_alpha: float
+        lift curve slope in a given configuration in radians
+
+    Returns
+    -------
+    float
+        calculated steady state roll rate
     """
     wing_shape = wing_shape_calc()
 
-    roll_damping_coeff = roll_damping_coeff_calc(*wing_shape)
-    rolling_moment_coeff = rolling_moment_coeff_calc(*wing_shape)
+    roll_damping_coeff = roll_damping_coeff_calc(*wing_shape, CL_alpha)
+    rolling_moment_coeff = rolling_moment_coeff_calc(*wing_shape, CL_alpha)
 
-    factor = - MAX_DEFLECTION * 2 * velocity / wing_data["Wing Span"]
+    factor = -MAX_DEFLECTION * 2 * velocity / wing_data["Wing Span"]
 
     return factor * rolling_moment_coeff / roll_damping_coeff
 
 
 if __name__ == "__main__":
-    print(steady_state_roll_rate(60))
+    roll_rate = steady_state_roll_rate(
+        wing_data["Cruise speed"], wing_data["CL alpha cruise"]
+    )
+    # According to the requirement, the aircraft must roll 60 deg in 7 seconds in AEO
+    angle = 2 * np.pi * 60 / 360
+    time = angle / roll_rate
+    print(
+        f"The aircraft rolls an angle of 60 deg in {time} seconds. The requirement calls for at most 7 seconds."
+    )
