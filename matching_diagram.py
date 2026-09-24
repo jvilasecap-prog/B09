@@ -9,12 +9,12 @@ import ISA
 # assumed values:
 takeoff_landing_altitude = 0 # [m]
 takeoff_landing_temperature = 15 # [*C]
-C_LFL = 0.45 # ADSEE
-theta_t_break = 1.08 # ADSEE
+C_LFL = 0.45 # (ADSEE)
+theta_t_break = 1.08 # (ADSEE)
 AR = 8.5 
 
 climb_rate_requirement = 0.5 # [m/s]
-climb_rate_requirement_altitude = 12496 + 300 # [m] (little above cruise altitude)
+climb_rate_requirement_altitude = 12496 + 300 # [m] little above cruise altitude
 
 clearance_height = 11 # [m] 
 k_T = 0.85
@@ -120,7 +120,7 @@ def landing_length(wing):
     rho = wing["Density sea level"]
     CL_max_landing = wing["CL max landing"]
 
-    return (1/beta) * (L_LF/C_LFL) * (rho * CL_max_landing / 2)
+    return (1/beta) * (1/0.6) * (L_LF/C_LFL) * (rho * CL_max_landing / 2)
 
 def takeoff_length(wing, W_S):
     [P1, T1, rho_1] = ISA.calculate(0, takeoff_landing_altitude, takeoff_landing_temperature)

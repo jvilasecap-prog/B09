@@ -22,7 +22,7 @@ def flaps_calculation(wing):
     cf_c_ratio = 0.35/0.4 # [-] (ADSEE)
     hinge_position_fraction = 0.7 # c_hinge/c (NASA)
     Delta_CL_max_landing = 2.65 - wing["CL max clean"] # larger than CL
-    Delta_CL_max_takeoff = 0.8*Delta_CL_max_landing # larger than CL
+    Delta_CL_max_takeoff = 0.8*Delta_CL_max_landing # 0.8*CL_max_landing (ADSEE)
     Delta_a0l_airfoil_landing = -15 # [deg] (ADSEE)
     Delta_a0l_airfoil_takeoff = -10 # [deg]
 
@@ -83,7 +83,7 @@ def flaps_calculation(wing):
 
     """5 - angle for CL_max_landing=2.5"""
 
-    print((2.5 - B_L)/A_L)
+    # print((2.5 - B_L)/A_L)
 
 
 
