@@ -53,7 +53,8 @@ def flaps_calculation(wing):
     Lambda_hinge_line = math.atan(math.tan(Sweep_quarter_chord - 4*(hinge_position_fraction - 0.25)/A * (1-t)/(1+t))) # (NASA)
 
     Swf_S_ratio = Delta_CL_max_landing/(0.9 * Delta_Cl_max * math.cos( Lambda_hinge_line ))
-    print(f"TE Swf_S ratio: {Swf_S_ratio}")
+    print(f"Swf_S ratio: {Swf_S_ratio}")
+    
     # print(Swf_S_ratio)
 
     """2 - Delta_a0L calculation"""
@@ -82,7 +83,21 @@ def flaps_calculation(wing):
     A_TO = CL_alpha_flapped
     B_TO = -CL_alpha_flapped*a0L_TO
 
-    """5 - angle for CL_max_landing=2.5"""
+    """5 - print required values"""
+
+    alpha_stall_landing = (CL_max_landing - B_L)/A_L
+    alpha_required_landing = (wing["CL max landing"] - B_L)/A_L
+    alpha_stall_takeoff = (CL_max_takeoff - B_TO)/A_TO
+    alpha_required_takeoff = (wing["CL max take-off"] - B_TO)/A_TO
+    d_alpha_landing = alpha_stall_landing - alpha_required_landing
+    d_alpha_takeoff = alpha_stall_takeoff - alpha_required_takeoff
+
+
+    print(f"new surface area: {S2_S1_ratio * wing["Wing area"]:.2f}")
+    print(f"stall landing alpha: {alpha_stall_landing:.2f}")
+    print(f"difference in landing and stall: {d_alpha_landing:.2f}")
+    print(f"stall take-off alpha: {alpha_stall_takeoff}")
+    print(f"difference in take-off and stall: {d_alpha_takeoff:.2f}")
 
     # print((2.5 - B_L)/A_L)
 
