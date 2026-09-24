@@ -7,13 +7,22 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 
-EXCEL = Path(__file__).parent.resolve() / "wing_initial_planform.csv"
+EXCEL = Path(__file__).parent.resolve() / "wing_initial_planform.xlsx"
 
-wing_data = pd.read_csv(
-    EXCEL,
-    usecols=[0, 1],
-    sep = ","
-)
+EPSILON = 1e-9
+
+# Wing data
+LIFT_CURVE_SLOPE_APP = 2 * np.pi  # per radian in landing configuration
+LIFT_CURVE_SLOPE = 0.186 * 57.296  # per radian in cruise
+
+# Aileron data
+CHORD_FRACTION = 0.22
+AILERON_START_FRAC = 0.6
+AILERON_END_FRAC = 0.86
+MAX_DEFLECTION = np.pi / 12
+
+
+wing_data = pd.read_excel(EXCEL, usecols="A:B")
 
 wing_data = wing_data.set_index(wing_data.columns[0])[wing_data.columns[1]].to_dict()
 
@@ -25,29 +34,13 @@ for key, value in wing_data.items():
         pass
 
 
-
-
-EPSILON = 1E-9
-
-
-# Wing data
-LIFT_CURVE_SLOPE_APP = 2 * np.pi  # per radian in landing configuration
-LIFT_CURVE_SLOPE = .186 * 57.296 #per radian in cruise
-
-# Aileron data
-CHORD_FRACTION = 0.22
-AILERON_START_FRAC = 0.6
-AILERON_END_FRAC = 0.86
-MAX_DEFLECTION = np.pi / 6
-
-
 def wing_shape_calc() -> tuple[float, float]:
     """
     Used to calculate the trapezoidal wing shape for integration.
     Assuming the trailing edge is equivalent to the x-axis, the leading edge
     can be modelled as a linear function to obtain a trapezoid.
 
-    Returns a and b, coefficients for the leading edge. 
+    Returns a and b, coefficients for the leading edge.
     """
 
     tip = wing_data["Wing Span"] / 2
@@ -84,8 +77,8 @@ def roll_damping_coeff_calc(a: float, b: float) -> float:
     """
     y_max = wing_data["Wing Span"] / 2
 
-    factor = (4 * (LIFT_CURVE_SLOPE + wing_data["Zero-lift drag coefficient"])) / (
-        wing_data["Wing area"] * (wing_data["Wing Span"]**2)
+    factor = -(4 * (LIFT_CURVE_SLOPE + wing_data["Zero-lift drag coefficient"])) / (
+        wing_data["Wing area"] * (wing_data["Wing Span"] ** 2)
     )
 
     return factor * (a / 4 * y_max**4 + b / 3 * y_max**3)
@@ -131,18 +124,17 @@ def aileron_efficiency_calc(
 
     return float(result[0])
 
+
 def steady_state_roll_rate(velocity) -> float:
     wing_shape = wing_shape_calc()
 
     roll_damping_coeff = roll_damping_coeff_calc(*wing_shape)
     rolling_moment_coeff = rolling_moment_coeff_calc(*wing_shape)
 
-    factor = - MAX_DEFLECTION* 2 * velocity / wing_data["Wing Span"]
+    factor = - MAX_DEFLECTION * 2 * velocity / wing_data["Wing Span"]
 
     return factor * rolling_moment_coeff / roll_damping_coeff
 
 
-
-
 if __name__ == "__main__":
-    pass
+    print(steady_state_roll_rate(60))
