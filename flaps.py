@@ -93,13 +93,14 @@ def flaps_calculation(wing):
     d_alpha_takeoff = alpha_stall_takeoff - alpha_required_takeoff
 
 
-    print(f"new surface area: {S2_S1_ratio * wing["Wing area"]:.2f}")
+    print(f"extra surface area: {(S2_S1_ratio-1) * wing["Wing area"]:.2f}")
     print(f"stall landing alpha: {alpha_stall_landing:.2f}")
     print(f"difference in landing and stall: {d_alpha_landing:.2f}")
-    print(f"stall take-off alpha: {alpha_stall_takeoff}")
+    print(f"stall take-off alpha: {alpha_stall_takeoff:.2f}")
     print(f"difference in take-off and stall: {d_alpha_takeoff:.2f}")
 
     # print((2.5 - B_L)/A_L)
+    return [CL_alpha_flapped, a0L_L, a0L_TO]
 
 
 

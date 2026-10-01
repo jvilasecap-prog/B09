@@ -48,4 +48,8 @@ wing["Total thrust"] = T*1000
 wing["Wing area"] = S
 wing["Wing span"] = b
 
-flaps.flaps_calculation(wing)
+[CL_alpha_flapped, a0L_L, a0L_TO] = flaps.flaps_calculation(wing)
+print(CL_alpha_flapped, a0L_L, a0L_TO)
+wing["CL alpha flapped"] = CL_alpha_flapped
+wing["a0L_L"] = a0L_L
+wing["a0L_TO"] = a0L_TO
