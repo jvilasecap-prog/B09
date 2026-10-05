@@ -19,7 +19,7 @@ def c2_c1_ratio_calculation(cf_c_ratio, flap_type, c1):
 def flaps_calculation(wing):
 
     # ASSUMED VALUES:
-    cf_c_ratio = 0.35/0.4 # [-] (ADSEE)
+    cf_c_ratio = 0.4 # [-] (ADSEE)
     hinge_position_fraction = 0.7 # c_hinge/c (NASA)
     Delta_CL_max_landing = wing["CL max landing"] + 0.15 - wing["CL max clean"] # larger than CL
     Delta_CL_max_takeoff = 0.8*Delta_CL_max_landing # 0.8*CL_max_landing (ADSEE)
@@ -28,6 +28,7 @@ def flaps_calculation(wing):
 
 
     c2_c1_ratio = c2_c1_ratio_calculation(cf_c_ratio, "single slotted fowler flap", wing["MAC"])
+    print(c2_c1_ratio)
 
     # Dictionary for values corresponding to type of flap
     flaps_dict = {
@@ -65,7 +66,7 @@ def flaps_calculation(wing):
     """3 - CL alpha flapped calculation"""
    
     S2_S1_ratio = 1 + Swf_S_ratio * (c2_c1_ratio - 1) # (ADSEE ppt)
-    CL_alpha_flapped = S2_S1_ratio * wing["CL alpha clean"]
+    CL_alpha_flapped = S2_S1_ratio * wing["CL alpha clean"] * (math.pi/180) # [deg^-1]
 
     """4 - Add contributions and create function"""
 

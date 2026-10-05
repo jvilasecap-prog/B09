@@ -2,6 +2,7 @@ import math
 
 g0 =  9.80665 # [m/s^2]
 R = 287.05287 # [J/kgK]
+R_e = 6356766.0 # [m] - effective earth radius for ISA
 P_STA_SL = 101325 # [Pa]
 T_STA_SL = 288.15 # [K]
 rho_SL = P_STA_SL/(R*T_STA_SL) # [kg/m3]
@@ -38,11 +39,12 @@ def calculate(h1, h0, T0, unit = "meters"):
     elif(unit == "FL"):
         multiplier = FL
 
-    h1 = multiplier * h1
+    z_geom = multiplier * h1 # geometric alt.
 
-    if(h1 > 86000):
+    if(z_geom > 86000):
         print("Sorry, I can only do altitudes up to 86000m")
     else:
+        h1 = (R_e * z_geom) / (R_e + z_geom) # convert geometric alt. to geopotential alt.
         T0 = 273.15 + T0
         T_SL = T0 - 0.0065*(h0-0)
 
