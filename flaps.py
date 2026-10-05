@@ -27,7 +27,7 @@ def flaps_calculation(wing):
     Delta_a0l_airfoil_takeoff = -10 # [deg]
 
 
-    c2_c1_ratio = c2_c1_ratio_calculation(cf_c_ratio, "single slotted fowler flap", wing["MAC"])
+    c2_c1_ratio = c2_c1_ratio_calculation(cf_c_ratio, wing["choices"]["flap_type"], wing["MAC"])
     print(c2_c1_ratio)
 
     # Dictionary for values corresponding to type of flap
@@ -55,8 +55,6 @@ def flaps_calculation(wing):
 
     Swf_S_ratio = Delta_CL_max_landing/(0.9 * Delta_Cl_max * math.cos( Lambda_hinge_line ))
     print(f"Swf_S ratio: {Swf_S_ratio}")
-    
-    # print(Swf_S_ratio)
 
     """2 - Delta_a0L calculation"""
 
@@ -94,11 +92,12 @@ def flaps_calculation(wing):
     d_alpha_takeoff = alpha_stall_takeoff - alpha_required_takeoff
 
 
-    print(f"extra surface area: {(S2_S1_ratio-1) * wing["Wing area"]:.2f}")
-    print(f"stall landing alpha: {alpha_stall_landing:.2f}")
-    print(f"difference in landing and stall: {d_alpha_landing:.2f}")
-    print(f"stall take-off alpha: {alpha_stall_takeoff:.2f}")
-    print(f"difference in take-off and stall: {d_alpha_takeoff:.2f}")
+    # print(f"extra surface area: {(S2_S1_ratio-1) * wing["Wing area"]:.2f}")
+    print(f"extra surface area: {(S2_S1_ratio) :.2f}")
+    # print(f"stall landing alpha: {alpha_stall_landing:.2f}")
+    # print(f"difference in landing and stall: {d_alpha_landing:.2f}")
+    # print(f"stall take-off alpha: {alpha_stall_takeoff:.2f}")
+    # print(f"difference in take-off and stall: {d_alpha_takeoff:.2f}")
 
     # print((2.5 - B_L)/A_L)
     return [CL_alpha_flapped, a0L_L, a0L_TO]

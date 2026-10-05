@@ -9,6 +9,7 @@ import flaps
 import matching_diagram
 import CL_alpha
 import mass_estimation
+import drag_polar
 
 
 # 1 - get preliminary wing planform design
@@ -27,8 +28,8 @@ for key, value in wing_unclean.items():
 # 2 - append all design choices
 
 wing["choices"] = {
-    # "flap_type": "single slotted fowler flap"
-    "flap_type": "single slotted flap with slats"
+    "flap_type": "single slotted fowler flap"
+    # "flap_type": "single slotted flap with slats"
 }
 
 # 3 - airfoil data input 
@@ -56,7 +57,8 @@ wing["Total thrust"] = T*1000
 wing["Wing area"] = S
 wing["Wing span"] = b
 
-# 4 - iterative loop
+# 4 - iterative loop for maximizing SAR
+
 CL_alpha_values = CL_alpha.calculate(wing)
 wing.update(CL_alpha_values)
 print(CL_alpha_values)

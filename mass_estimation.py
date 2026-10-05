@@ -15,7 +15,7 @@ def get_values(wing):
     TSFC = 22*bypass_ratio**(-0.19)
 
     [P_cruise, T_cruise, rho_cruise] = ISA.calculate(41000, 0, 15, unit = "ft")
-    print([P_cruise, T_cruise, rho_cruise])
+    # print([P_cruise, T_cruise, rho_cruise])
     SoS = math.sqrt(1.4 * ISA.R * T_cruise)
     V_CR = wing["Mach number cruise"] * SoS
 
