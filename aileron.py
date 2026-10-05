@@ -18,6 +18,9 @@ AILERON_END_FRAC = 0.91
 MAX_DEFLECTION_DEG = 22
 MAX_DEFLECTION = MAX_DEFLECTION_DEG * np.pi / 180
 
+# Aerofoil data
+C_l_alpha = 6.474423085 # per radian
+
 
 wing_data = pd.read_excel(EXCEL, usecols="A:B")
 
@@ -54,7 +57,7 @@ def rolling_moment_coeff_calc(a: float, b: float, CL_alpha: float) -> float:
     """
     Implements the yellow formula from ADSEE lecture 3 slide 57.
     a, b - shape of the wing according to wing_shape()
-    CL_alpha - lift curve slope
+    Cl_alpha - lift curve slope
     """
 
     def antiderivative(y: float) -> float:
@@ -155,7 +158,7 @@ def steady_state_roll_rate(velocity: float, CL_alpha: float) -> float:
 
 if __name__ == "__main__":
     roll_rate = steady_state_roll_rate(
-        wing_data["Stall speed landing"], wing_data["CL alpha flapped"]
+        wing_data["Stall speed landing"], C_l_alpha  # wing_data["CL alpha flapped"]
     )
     # roll_rate = steady_state_roll_rate(
     #     wing_data["Cruise speed"], wing_data["CL alpha cruise"]
