@@ -109,27 +109,31 @@ def calculate_e(AR:float, sweep:float = 0)->float:
 #COMPUTE AREA
 
 title = "MS(1)-0313.txt"
-def airfoil_unitarea(title):
+def airfoil_unitarea(title, spar1x, spar2x):
   df = pd.read_csv(title, sep=r"\s+", skiprows=0, header=None)
-  LE = df[0].to_numpy()
-  TE = df[1].to_numpy()
-  A= 0.5 * np.abs(np.dot(LE, np.roll(TE, 1)) - np.dot(TE, np.roll(LE, 1)))
-  return A
-def calculate_volume(title, AR:float, S:float, taperRatio:float):
-  df = pd.read_csv(title, sep=r"\s+", skiprows=0, header=None)
-  LE = df[0].to_numpy()
-  TE = df[1].to_numpy()
-  A1 = 0.5 * np.abs(np.dot(LE, np.roll(TE, 1)) - np.dot(TE, np.roll(LE, 1)))
-  b = math.sqrt(b*AR)
-  cr = 2*S/(b*(1+taperRatio))
-  V = 0
-  dy = 0.01
+  Ux = df[0].to_numpy()
+  Uy = df[1].to_numpy()
 
-  for i in range(b/dy):
-    c = cr + (taperRatio-1)*cr*y*2/b
-    A = A1*c^2
-    V
-  
+  Lx = df[2].to_numpy()
+  Ly = df[3].to_numpy()
+  A = 0
+  for i in range(len(Ux)-1):
+    if (spar1x < Ux[i]) and (Ux[i] < spar2x):
+      A = A + (Ux[i+1]-Ux[i])*((Uy[i+1] + Uy[i])/2)
+      A = A - (Lx[i+1]-Lx[i])*((Ly[i+1] + Ly[i])/2)
+  return A
+def calculate_volume(title, AR: float, S: float, taper_ratio: float, spar1x, spar2x):
+    # Unit-chord airfoil area (shoelace)
+    A1 = airfoil_unitarea(title, spar1x, spar2x)
+
+    b = math.sqrt(S * AR)
+    cr = 2 * S / (b * (1 + taper_ratio))
+    lam = taper_ratio
+
+    return A1 * b * cr**2 * (1 + lam + lam**2) / 3
+
+#print(airfoil_unitarea(title, 0.3, 0.8))
+print(calculate_volume(title, 10, 29.06467, 1, 0.3, 0.8))
   
   
 
