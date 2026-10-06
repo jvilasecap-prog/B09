@@ -35,7 +35,7 @@ def calculate(wing):
     # 1 - Cl required
 
     [P_cruise, T_cruise, rho_cruise] = ISA.calculate(41000, 0, 15, unit = "ft")
-    print([P_cruise, T_cruise, rho_cruise])
+    # print([P_cruise, T_cruise, rho_cruise])
     SoS = math.sqrt(1.4 * ISA.R * T_cruise)
     V_CR = wing["Mach number cruise"] * SoS
     
@@ -68,7 +68,6 @@ def calculate(wing):
 
 
     # 3 - CL_max and stall angle
-
     CLmax_Clmax_ratio = CL_cl_ratio(wing["Sweep leading edge"])
     Clmax = wing["Cl max clean"]
     CL_max = CLmax_Clmax_ratio * Clmax 

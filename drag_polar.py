@@ -103,25 +103,34 @@ def calculate_alpha_s(alpha_CL0: float, CL_alpha: float, delta_alpha_CLMAX:float
     return alpha_s
 
 def calculate_e(AR:float, sweep:float = 0)->float:
-    e1 = 2/(2-AR+math.sqrt(4+(AR^2)*(1+math.tan(sweep)^2)))
-    e2 = 1.78*(1-0.045*AR^(0.68))
-    return e1, e2
+    e1 = 2/(2-AR+math.sqrt(4+(AR**2)*(1+math.tan(sweep)**2)))
+    return e1   
 #COMPUTE AREA
 
 title = "MS(1)-0313.txt"
 def airfoil_unitarea(title, spar1x, spar2x):
-  df = pd.read_csv(title, sep=r"\s+", skiprows=0, header=None)
-  Ux = df[0].to_numpy()
-  Uy = df[1].to_numpy()
+    if not spar1x < spar2x:
+        raise ValueError("spar1x must be < spar2x")
 
-  Lx = df[2].to_numpy()
-  Ly = df[3].to_numpy()
-  A = 0
-  for i in range(len(Ux)-1):
-    if (spar1x < Ux[i]) and (Ux[i] < spar2x):
-      A = A + (Ux[i+1]-Ux[i])*((Uy[i+1] + Uy[i])/2)
-      A = A - (Lx[i+1]-Lx[i])*((Ly[i+1] + Ly[i])/2)
-  return A
+    df = pd.read_csv(title, sep=r"\s+", header=None)
+    U = df[[0, 1]].dropna().sort_values(0).to_numpy(float)
+    L = df[[2, 3]].dropna().sort_values(2).to_numpy(float)
+
+    if spar1x < max(U[0, 0], L[0, 0]) or spar2x > min(U[-1, 0], L[-1, 0]):
+        raise ValueError("spar outside airfoil x-range")
+
+    # data points strictly between the spars, plus the spar positions themselves
+    xs = np.unique(np.concatenate([
+        [spar1x, spar2x],
+        U[(U[:, 0] > spar1x) & (U[:, 0] < spar2x), 0],
+        L[(L[:, 0] > spar1x) & (L[:, 0] < spar2x), 0],
+    ]))
+
+    # exact at data points, linear only at the two spar ends
+    t = np.interp(xs, U[:, 0], U[:, 1]) - np.interp(xs, L[:, 0], L[:, 1])
+
+    return np.trapezoid(t, xs)
+
 def calculate_volume(title, AR: float, S: float, taper_ratio: float, spar1x, spar2x):
     # Unit-chord airfoil area (shoelace)
     A1 = airfoil_unitarea(title, spar1x, spar2x)
@@ -132,8 +141,8 @@ def calculate_volume(title, AR: float, S: float, taper_ratio: float, spar1x, spa
 
     return A1 * b * cr**2 * (1 + lam + lam**2) / 3
 
-#print(airfoil_unitarea(title, 0.3, 0.8))
-print(calculate_volume(title, 10, 29.06467, 1, 0.3, 0.8))
+# print(airfoil_unitarea(title, 0.3, 0.8))
+print(calculate_volume(title, 11, 38.74, 1, 0.3, 0.8))
   
   
 

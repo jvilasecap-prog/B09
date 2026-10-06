@@ -9,8 +9,8 @@ def get_values(wing):
     psi = wing["Psi"] # (ADSEE)
     phi = wing["Phi"] # (ADSEE)
     AR = wing["Aspect ratio"] # design choice
-
     C_d0 = wing["CD0"] # change based on lift curve, but first assumed with adsee book
+
     e = 1/(math.pi*AR*psi+ 1/phi)
     TSFC = 22*bypass_ratio**(-0.19)
 

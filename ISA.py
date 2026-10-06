@@ -60,3 +60,5 @@ def calculate(h1, h0, T0, unit = "meters"):
                 break
 
         return [P1, T1, rho_1]
+
+# print(calculate(41000, 0, 15, "ft"))

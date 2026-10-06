@@ -211,12 +211,12 @@ def plot_matching_diagram(x, y, design_point, landing_length_W_S, minimum_speed_
     plt.tight_layout()
     plt.show()
 
-def get_wing_graph(wing):
+def get_wing_graph(wing, diff=0):
 
     # 1 - get vertical constraints
 
-    minimum_speed_W_S = minimum_speed(wing)
-    landing_length_W_S = landing_length(wing)
+    minimum_speed_W_S = minimum_speed(wing) - diff
+    landing_length_W_S = landing_length(wing) - diff
 
     # 2 - get remaining constraints points against w/s to plot
 
@@ -252,7 +252,7 @@ def get_wing_graph(wing):
 
     # 5 - plot and print everything
 
-    plot_matching_diagram(x, y, design_point, landing_length_W_S, minimum_speed_W_S)
+    # plot_matching_diagram(x, y, design_point, landing_length_W_S, minimum_speed_W_S)
 
     output = [design_point, S, b, T]
 
