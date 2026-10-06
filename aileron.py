@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 
-EXCEL = Path(__file__).parent.resolve() / "wing_initial_planform.xlsx"
+EXCEL = Path(__file__).parent.resolve() / "final_wing_planform.xlsx"
 
 EPSILON = 1e-9
 
 # Aileron data
-CHORD_FRACTION = 0.2
-AILERON_START_FRAC = 0.65
-AILERON_END_FRAC = 0.91
+CHORD_FRACTION = 0.22
+AILERON_START_FRAC = 0.62 # alternatively .2/.6
+AILERON_END_FRAC = 0.95
 MAX_DEFLECTION_DEG = 22
 MAX_DEFLECTION = MAX_DEFLECTION_DEG * np.pi / 180
 
