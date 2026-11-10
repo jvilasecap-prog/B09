@@ -258,3 +258,7 @@ def w_propulsion_group(
 
     return k_pg * k_thr * number_of_engines * engine_mass
 
+def final_weight_computation(MTOW, MZFW, S_wing, b_wing, t_root_wing, sweep_wing_halfchord, n_ult, S_H, S_V, sweep_H, sweep_V, V_dive, l_H, width_fuselage, height_fuselage, gross_shell_area):
+  w_total = w_wing(MZFW, S_wing, b_wing, t_root_wing, sweep_wing_halfchord, n_ult) + w_tailplane(S_H, S_V, sweep_H, sweep_V, V_dive) + w_fuselage(V_dive, l_H, width_fuselage, height_fuselage, gross_shell_area) + w_control_surfaces(MTOW) + w_landing_gear(MTOW) + w_propulsion_group()
+
+  return w_total 
