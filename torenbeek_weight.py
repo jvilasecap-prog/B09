@@ -22,14 +22,14 @@ for key, value in ac_data.items():
         pass
 
 
-def w_struct(
-    MTOW: float,
-    fus_d: float,
-    fus_h: float,
-    fus_l: float,
-    n_ult: float,
-) -> float:
-    return MTOW * (0.447 * np.sqrt(n_ult) * ((fus_d * fus_h * fus_l) / MTOW) ** 0.24)
+# def w_struct(
+#     MTOW: float,
+#     fus_d: float,
+#     fus_h: float,
+#     fus_l: float,
+#     n_ult: float,
+# ) -> float:
+#     return MTOW * (0.447 * np.sqrt(n_ult) * ((fus_d * fus_h * fus_l) / MTOW) ** 0.24)
 
 
 def w_wing(
