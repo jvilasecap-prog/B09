@@ -19,7 +19,7 @@ def c2_c1_ratio_calculation(cf_c_ratio, flap_type, c1):
 def flaps_calculation(wing):
 
     # ASSUMED VALUES:
-    cf_c_ratio = 0.35/0.4 # [-] (ADSEE)
+    cf_c_ratio = 0.4 # [-] (ADSEE)
     hinge_position_fraction = 0.7 # c_hinge/c (NASA)
     Delta_CL_max_landing = wing["CL max landing"] + 0.15 - wing["CL max clean"] # larger than CL
     Delta_CL_max_takeoff = 0.8*Delta_CL_max_landing # 0.8*CL_max_landing (ADSEE)
@@ -27,7 +27,8 @@ def flaps_calculation(wing):
     Delta_a0l_airfoil_takeoff = -10 # [deg]
 
 
-    c2_c1_ratio = c2_c1_ratio_calculation(cf_c_ratio, "single slotted fowler flap", wing["MAC"])
+    c2_c1_ratio = c2_c1_ratio_calculation(cf_c_ratio, wing["choices"]["flap_type"], wing["MAC"])
+    # print(c2_c1_ratio)
 
     # Dictionary for values corresponding to type of flap
     flaps_dict = {
@@ -53,9 +54,7 @@ def flaps_calculation(wing):
     Lambda_hinge_line = math.atan(math.tan(Sweep_quarter_chord - 4*(hinge_position_fraction - 0.25)/A * (1-t)/(1+t))) # (NASA)
 
     Swf_S_ratio = Delta_CL_max_landing/(0.9 * Delta_Cl_max * math.cos( Lambda_hinge_line ))
-    print(f"Swf_S ratio: {Swf_S_ratio}")
-    
-    # print(Swf_S_ratio)
+    # print(f"Swf_S ratio: {Swf_S_ratio}")
 
     """2 - Delta_a0L calculation"""
 
@@ -65,7 +64,7 @@ def flaps_calculation(wing):
     """3 - CL alpha flapped calculation"""
    
     S2_S1_ratio = 1 + Swf_S_ratio * (c2_c1_ratio - 1) # (ADSEE ppt)
-    CL_alpha_flapped = S2_S1_ratio * wing["CL alpha clean"]
+    CL_alpha_flapped = S2_S1_ratio * wing["CL alpha clean"] * (math.pi/180) # [deg^-1]
 
     """4 - Add contributions and create function"""
 
@@ -91,16 +90,27 @@ def flaps_calculation(wing):
     alpha_required_takeoff = (wing["CL max take-off"] - B_TO)/A_TO
     d_alpha_landing = alpha_stall_landing - alpha_required_landing
     d_alpha_takeoff = alpha_stall_takeoff - alpha_required_takeoff
+    if(round(A,1) == 11):
+        print(A,Swf_S_ratio)
 
-
-    print(f"extra surface area: {(S2_S1_ratio-1) * wing["Wing area"]:.2f}")
-    print(f"stall landing alpha: {alpha_stall_landing:.2f}")
-    print(f"difference in landing and stall: {d_alpha_landing:.2f}")
-    print(f"stall take-off alpha: {alpha_stall_takeoff:.2f}")
-    print(f"difference in take-off and stall: {d_alpha_takeoff:.2f}")
+    # print(alpha_required_landing)
+    # print(alpha_required_takeoff)
+    # print(f"extra surface area: {(S2_S1_ratio-1) * wing["Wing area"]:.2f}")
+    # print(f"S'/S: {(S2_S1_ratio) :.2f}")
+    # print(f"a0L_L {Delta_a0L_landing}")
+    # print(f"a0L_TO {Delta_a0l_airfoil_takeoff}")
+    # print(f"CL_alpha {CL_alpha_flapped}")
+    # print(f"stall landing alpha: {alpha_stall_landing:.2f}")
+    # print(f"difference in landing and stall: {d_alpha_landing:.2f}")
+    # print(f"stall take-off alpha: {alpha_stall_takeoff:.2f}")
+    # print(f"difference in take-off and stall: {d_alpha_takeoff:.2f}")
 
     # print((2.5 - B_L)/A_L)
     return [CL_alpha_flapped, a0L_L, a0L_TO]
 
 
 
+b2 = 0.6
+b1 = math.sqrt(b2**2 - 2.68*(1+(-0.6/(20.64/2)))/(38.736*0.72315))
+
+print(b1, b2)
