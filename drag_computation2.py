@@ -79,7 +79,7 @@ def drag_compute(mac_wing, mac_H, mac_V, S_wing, S_H, S_V, D_engine, l_engine, D
   IF_engine = 1.3
   #wave drag considered negligible since M < M_DD
 
-  C_D = (C_f_wing*FF_wing*IF_wing*S_wet_wing + C_f_H*FF_H*IF_H*S_wet_H + C_f_V*FF_V*IF_V*S_wet_V + C_f_fuselage*FF_fuselage*IF_fuselage*S_wet_fuselage + C_f_engine*FF_engine*IF_engine*S_wet_engine)
+  C_D = (C_f_wing*FF_wing*IF_wing*S_wet_wing + C_f_H*FF_H*IF_H*S_wet_H + C_f_V*FF_V*IF_V*S_wet_V + C_f_fuselage*FF_fuselage*IF_fuselage*S_wet_fuselage + C_f_engine*FF_engine*IF_engine*S_wet_engine)/S_wing
   return C_D
 
   #to check the file

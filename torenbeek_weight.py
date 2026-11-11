@@ -42,15 +42,24 @@ def w_wing(
 ) -> float:
 
     structural_span = wing_span / np.cos(half_chord_sweep)
-
+    #Claude version CHECK
     wing_mass = (
         6.67e-3
         * structural_span**0.75
         * (1.0 + np.sqrt(1.905 / structural_span))
         * n_ult**0.55
-        * (structural_span / root_thickness)
-        * (MZFW / wing_area) ** 0.30
+        * ((structural_span / root_thickness) / (MZFW / wing_area)) ** 0.30
+        * MZFW
     )
+    #Original version
+    #wing_mass = (
+    #    6.67e-3
+    #    * structural_span**0.75
+    #    * (1.0 + np.sqrt(1.905 / structural_span))
+    #    * n_ult**0.55
+    #    * (structural_span / root_thickness)
+    #    * (MZFW / wing_area) ** 0.30
+    #)
 
     return wing_mass
 

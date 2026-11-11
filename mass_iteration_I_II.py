@@ -24,20 +24,72 @@ mtom_old = wing['MTOM']
 oem = wing['OEM']
 m_f = wing['Fuel mass']
 mzfw = oem + wing['Maximum payload']
+
 S_old = wing['Wing area']
 mac_wing = wing['mac wing']
+c_r_wing = wing['Root chord']
 b_wing = wing['Wing span']
+
+S_H = wing['area horizontal tail']
+mac_H = wing['mac horizontal tail']
+S_V = wing['area vertical tail']
+mac_V = wing['mac vertical tail']
+
 [P_cruise, T_cruise, rho_cruise] = ISA.calculate(41000, 0, 15, "ft")
 
-tolerance = 5e-3
+tolerance = 5e-4
 error = 1.0
-#Iterate in a while loop until the MTOM error is less than 0.5% (arbitrary)
+#Iterate in a while loop until the MTOM error is less than 0.05% (arbitrary)
 n=0
+
+print(wc2.w_wing(
+    mzfw,
+    S_old,
+    b_wing,
+    c_r_wing*wing['t/c MS0313'],
+    math.atan(-c_r_wing*(1-wing['Taper ratio'])/(2*b_wing)),
+    4,
+))
+print(wc2.w_tailplane(
+    S_H,
+    S_V,
+    wing['sweep H'],
+    wing['sweep V'],
+    230,
+))
+print(wc2.w_fuselage(
+    230,
+    wing['H tail arm'],
+    wing['Fuselage diameter'],
+    wing['Fuselage diameter'],
+     math.pi*wing['Fuselage diameter']*wing['Fuselage length'],
+))
+print(wc2.w_control_surfaces(mtom_old))
+print(wc2.w_landing_gear(mtom_old))
+
+
 while (error > tolerance) and (n<100):
   n += 1
 #Get the values for m_f, mtom, moem, C_D from an excel or the class II weight estimation
-  CD_0 = dc2.drag_compute(mac_wing, wing["mac horizontal tail"], wing["mac vertical tail"], S_old, wing["area horizontal tail"], wing['area vertical tail'], wing["diameter engine"], 3, wing["Fuselage diameter"], wing["L1"], wing["L2"], wing["L3"], wing["Mach number cruise"], rho_cruise, T_cruise, wing["dynamic viscosity cruise"])
-  oem = wc2.class_2_zero_fuel_weight(mtom_old, mzfw, wing["area horizontal tail"], b_wing, wing["Root chord"]*wing['t/c MS0313'], math.atan(-wing['Root chord']*(1-wing['Taper ratio'])/(2*b_wing)), 2, wing["area horizontal tail"], wing["area vertical tail"], wing['sweep H'], wing['sweep V'], 236.03, wing['H tail arm'], wing['Fuselage diameter'], wing['Fuselage diameter'], math.pi*(wing['Fuselage diameter']**2)/4)
+  CD_0 = dc2.drag_compute(
+    mac_wing, 
+    mac_H, 
+    mac_V, 
+    S_old, 
+    S_H, 
+    S_V, 
+    wing["diameter engine"], 
+    3, 
+    wing["Fuselage diameter"], 
+    wing["L1"], 
+    wing["L2"], 
+    wing["L3"], 
+    wing["Mach number cruise"], 
+    rho_cruise, 
+    T_cruise, 
+    wing["dynamic viscosity cruise"]
+  )
+  oem = wc2.class_2_zero_fuel_weight(mtom_old, mzfw, S_old, b_wing, c_r_wing*wing['t/c MS0313'], math.atan(-c_r_wing*(1-wing['Taper ratio'])/(2*b_wing)), 3, S_H, S_V, wing['sweep H'], wing['sweep V'], 236.03, wing['H tail arm'], wing['Fuselage diameter'], wing['Fuselage diameter'], math.pi*wing['Fuselage diameter']*wing['Fuselage length'])
   #CHECK EXCEL VALUES WITH GROUP
   mzfw = oem + wing['Maximum payload']
   #The m_f can be obtained with the range of the aircraft, however this may give issues in the convergence of the code since the aircraft is becoming heavier while the dimensional components are not growing
@@ -72,15 +124,20 @@ while (error > tolerance) and (n<100):
   #compute the error from the optimal solution
   error = abs(mtom_new - mtom_old)/mtom_old 
 
-  S_new = mtom_new*wing['Wing loading (initial, before any fuel has been burned)']
+  S_new = mtom_new*9.80665/wing['Wing loading (initial, before any fuel has been burned)']
   b_wing = b_wing*math.sqrt(S_new/S_old)
   mac_wing = mac_wing*math.sqrt(S_new/S_old)
+  c_r_wing = c_r_wing*math.sqrt(S_new/S_old)
+  S_V = S_V*(S_new/S_old)**(3/2) #The tail volume scales both with the wing area and the wingspan or chord
+  S_H = S_H*(S_new/S_old)**(3/2)
+  mac_V = mac_V*math.sqrt(S_new/S_old)
+  mac_H = mac_H*math.sqrt(S_new/S_old)
 
 #the update of the excel was deleted since more testing is probably needed before the final reliable values are achieved
   mtom_old = mtom_new
   S_old = S_new
-
-print(f"The final values are m_f = {m_f} kg\nm_tom_new = {mtom_new} kg\nm_oem = {oem} kg\nC_D0 = {CD_0}")
+#CHECK THAT THE FUEL CAN BE STORED IN THE WINGS
+print(f"The final values are m_f = {m_f} kg\nmtom_new = {mtom_new} kg\noem = {oem} kg\nC_D0 = {CD_0}")
 print(f"The final wing values are S = {S_new} m^2\n")
 
 
