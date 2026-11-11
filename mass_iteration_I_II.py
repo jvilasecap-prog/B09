@@ -2,8 +2,8 @@ import pandas as pd
 import math
 
 #import python files as modules
-import torenbeek_weight
-import drag_computation2
+import torenbeek_weight as wc2
+import drag_computation2 as dc2
 import ISA
 #import the class II mass estimation
 
@@ -33,8 +33,8 @@ error = 1.0
 while error > tolerance:
 
 #Get the values for m_f, m_tom, m_oem, C_D from an excel or the class II weight estimation
-  CD_0_new = drag_compute(wing["mac wing"], wing["mac horizontal tail"], wing["mac vertical tail"], wing["Wing area"], wing["area horizontal tail"], wing["area vertical tail"], wing["diameter engine"], l_engine, wing["Fuselage diameter"], wing["L1"], wing["L2"], wing["L3"], wing["Mach number cruise"], rho_cruise, T_cruise, wing["dynamic viscosity cruise"])
-  m_oem_new = final_weight_computation(m_tom_old, mzfw_old, wing["area horizontal tail"], wing["Wing span"], wing["Root chord"]*wing['t/c MS0313'], sweep_wing_halfchord, n_ult, wing["area horizontal tail"], wing["area vertical tail"], wing['sweep H'], wing['sweep V'], V_dive, wing['H tail arm'], wing['Fuselage diameter'], wing['Fuselage diameter'], math.pi*(wing['Fuselage diameter']**2)/4)
+  CD_0_new = dc2.drag_compute(wing["mac wing"], wing["mac horizontal tail"], wing["mac vertical tail"], wing["Wing area"], wing["area horizontal tail"], wing["area vertical tail"], wing["diameter engine"], l_engine, wing["Fuselage diameter"], wing["L1"], wing["L2"], wing["L3"], wing["Mach number cruise"], rho_cruise, T_cruise, wing["dynamic viscosity cruise"])
+  m_oem_new = wc2.class_2_zero_fuel_weight(m_tom_old, mzfw_old, wing["area horizontal tail"], wing["Wing span"], wing["Root chord"]*wing['t/c MS0313'], sweep_wing_halfchord, n_ult, wing["area horizontal tail"], wing["area vertical tail"], wing['sweep H'], wing['sweep V'], V_dive, wing['H tail arm'], wing['Fuselage diameter'], wing['Fuselage diameter'], math.pi*(wing['Fuselage diameter']**2)/4)
   mzfw_new = m_oem_new + wing['Maximum payload']
   #The m_f can be obtained with the range of the aircraft, however this may give issues in the convergence of the code since the aircraft is becoming heavier while the dimensional components are not growing
   #For that reason reitaration of the aircaft dimensional variables is probably needed
