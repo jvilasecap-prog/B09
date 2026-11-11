@@ -115,15 +115,11 @@ def w_tailplane(
         return 10.0 + (25.0 - 10.0) / (0.45 - 0.2) * (x - 0.2)
 
     horizontal_f_input = (
-        horizontal_area**0.2
-        * dive_speed
-        / (1000.0 * np.sqrt(np.cos(horizontal_sweep)))
+        horizontal_area**0.2 * dive_speed / (1000.0 * np.sqrt(np.cos(horizontal_sweep)))
     )
 
     vertical_f_input = (
-        vertical_area**0.2
-        * dive_speed
-        / (1000.0 * np.sqrt(np.cos(vertical_sweep)))
+        vertical_area**0.2 * dive_speed / (1000.0 * np.sqrt(np.cos(vertical_sweep)))
     )
 
     # Fixed-incidence horizontal stabilizer.
@@ -132,19 +128,12 @@ def w_tailplane(
     # Horizontal stabilizer mounted on the fin.
     k_v = 1.0 + 0.15 * horizontal_area / vertical_area
 
-    horizontal_mass = (
-        k_h
-        * f(horizontal_f_input)
-        * horizontal_area
-    )
+    horizontal_mass = k_h * f(horizontal_f_input) * horizontal_area
 
-    vertical_mass = (
-        k_v
-        * f(vertical_f_input)
-        * vertical_area
-    )
+    vertical_mass = k_v * f(vertical_f_input) * vertical_area
 
     return horizontal_mass + vertical_mass
+
 
 def w_fuselage(
     dive_speed: float,
@@ -175,11 +164,7 @@ def w_fuselage(
 
     fuselage_mass = (
         k_wf
-        * np.sqrt(
-            dive_speed
-            * tail_arm
-            / (fuselage_width + fuselage_height)
-        )
+        * np.sqrt(dive_speed * tail_arm / (fuselage_width + fuselage_height))
         * gross_shell_area**1.2
     )
 
@@ -188,12 +173,11 @@ def w_fuselage(
 
     return fuselage_mass
 
-def w_control_surfaces(
-        MTOW: float,
-        k_sc: float = .64 
-) -> float:
-    factor = .768 #metric
-    return k_sc * factor * MTOW ** (2/3)
+
+def w_control_surfaces(MTOW: float, k_sc: float = 0.64) -> float:
+    factor = 0.768  # metric
+    return k_sc * factor * MTOW ** (2 / 3)
+
 
 def w_landing_gear(MTOW: float) -> float:
     """
@@ -213,16 +197,9 @@ def w_landing_gear(MTOW: float) -> float:
     if MTOW <= 0.0:
         raise ValueError("MTOW must be positive.")
 
-    main_gear_mass = (
-        15.0
-        + 0.033 * MTOW**0.75
-        + 0.021 * MTOW
-    )
+    main_gear_mass = 15.0 + 0.033 * MTOW**0.75 + 0.021 * MTOW
 
-    nose_gear_mass = (
-        5.4
-        + 0.049 * MTOW**0.75
-    )
+    nose_gear_mass = 5.4 + 0.049 * MTOW**0.75
 
     return main_gear_mass + nose_gear_mass
 
@@ -258,7 +235,45 @@ def w_propulsion_group(
 
     return k_pg * k_thr * number_of_engines * engine_mass
 
-def final_weight_computation(MTOW, MZFW, S_wing, b_wing, t_root_wing, sweep_wing_halfchord, n_ult, S_H, S_V, sweep_H, sweep_V, V_dive, l_H, width_fuselage, height_fuselage, gross_shell_area):
-  w_total = w_wing(MZFW, S_wing, b_wing, t_root_wing, sweep_wing_halfchord, n_ult) + w_tailplane(S_H, S_V, sweep_H, sweep_V, V_dive) + w_fuselage(V_dive, l_H, width_fuselage, height_fuselage, gross_shell_area) + w_control_surfaces(MTOW) + w_landing_gear(MTOW) + w_propulsion_group()
+def w_airframe_services(MTOW: float) -> float:
+    """
+    Due to missing information, the average weight is taken
+    """
+    return .14 * MTOW
 
-  return w_total 
+
+def class_2_zero_fuel_weight(
+    MTOW,
+    MZFW,
+    S_wing,
+    b_wing,
+    t_root_wing,
+    sweep_wing_halfchord,
+    n_ult,
+    S_H,
+    S_V,
+    sweep_H,
+    sweep_V,
+    V_dive,
+    l_H,
+    width_fuselage,
+    height_fuselage,
+    gross_shell_area,
+):
+    w_total = (
+        w_wing(MZFW, S_wing, b_wing, t_root_wing, sweep_wing_halfchord, n_ult)
+        + w_tailplane(S_H, S_V, sweep_H, sweep_V, V_dive)
+        + w_fuselage(V_dive, l_H, width_fuselage, height_fuselage, gross_shell_area)
+        + w_control_surfaces(MTOW)
+        + w_landing_gear(MTOW)
+        + w_propulsion_group()
+        + w_airframe_services()
+    )
+
+    return w_total
+
+def class_2_max_take_off_weight(zero_fuel_weight, fuel_weight, payload_weight = 1010):
+    return zero_fuel_weight + fuel_weight + payload_weight
+
+if __name__ == "__main__":
+    pass
