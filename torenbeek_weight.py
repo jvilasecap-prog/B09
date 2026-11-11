@@ -267,7 +267,7 @@ def class_2_zero_fuel_weight(
         + w_control_surfaces(MTOW)
         + w_landing_gear(MTOW)
         + w_propulsion_group()
-        + w_airframe_services()
+        + w_airframe_services(MTOW)
     )
 
     return w_total
