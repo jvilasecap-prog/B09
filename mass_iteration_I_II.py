@@ -6,7 +6,6 @@ import torenbeek_weight as wc2
 import drag_computation2 as dc2
 import ISA
 import drag_polar
-import mass_estimation
 #import the class II mass estimation
 
 df = pd.read_excel('final_wing_planform_corrected.xlsx')
@@ -48,6 +47,24 @@ fuel_volume = m_f/805
 print(f"The final values are m_f = {m_f} kg\nmtom_new = {mtom_old} kg\noem = {oem} kg")
 print(f"The final wing values are S = {S_old} m^2\n")
 print(f"The available volume of the wings is {wing_volume} and the requried is {fuel_volume}")
+print(f"The drag coefficient{dc2.drag_compute(
+    mac_wing, 
+    mac_H, 
+    mac_V, 
+    S_old, 
+    S_H, 
+    S_V, 
+    wing["diameter engine"], 
+    3, 
+    wing["Fuselage diameter"], 
+    wing["L1"], 
+    wing["L2"], 
+    wing["L3"], 
+    wing["Mach number cruise"], 
+    rho_cruise, 
+    T_cruise, 
+    wing["dynamic viscosity cruise"]
+  )}")
 
 print(wc2.w_wing(
     mzfw,
@@ -67,7 +84,7 @@ print(wc2.w_fuselage(
 print(wc2.w_control_surfaces(mtom_old))
 print(wc2.w_landing_gear(mtom_old))
 
-a=0.957
+a=0.947
 #dummy variables to start the while loop
 #wing_volume = 0
 #fuel_volume = 1
@@ -85,7 +102,7 @@ while (error > tolerance) and (n<100):
     S_H, 
     S_V, 
     wing["diameter engine"], 
-    3, 
+    1.923, 
     wing["Fuselage diameter"], 
     wing["L1"], 
     wing["L2"], 

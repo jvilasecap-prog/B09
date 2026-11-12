@@ -73,7 +73,7 @@ def drag_compute(mac_wing, mac_H, mac_V, S_wing, S_H, S_V, D_engine, l_engine, D
   IF_H = 1.04
   IF_V = 1.04
 
-  IF_wing = 1
+  IF_wing = 1.2
   #IF_fuselage is due to the pressence of the engines
   IF_fuselage = 1.3
   IF_engine = 1.3
