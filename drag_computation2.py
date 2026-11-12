@@ -18,7 +18,7 @@ def drag_compute(mac_wing, mac_H, mac_V, S_wing, S_H, S_V, D_engine, l_engine, D
   S_wet_wing = 1.07*2*S_wing
   S_wet_V = 1.05*2*S_V
   S_wet_H = 1.05*2*S_H
-  S_wet_engine = math.pi*D_engine*l_engine
+  S_wet_engine = 2*math.pi*D_engine*l_engine
 #Computation of wet surface of the fuselage
   term_bracket = (1 / (3 * L1**2)) * (((4 * L1**2 + (D_fuselage**2) / 4) ** 1.5) - ((D_fuselage**3) / 8))
   remaining_terms = -D_fuselage + 4 * L2 + 2 * math.sqrt(L3**2 + (D_fuselage**2) / 4)

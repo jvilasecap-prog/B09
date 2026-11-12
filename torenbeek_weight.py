@@ -64,15 +64,14 @@ def w_wing(
     return wing_mass
 
 
-import numpy as np
-
-
 def w_tailplane(
     horizontal_area: float,
     vertical_area: float,
     horizontal_sweep: float,
     vertical_sweep: float,
     dive_speed: float,
+    horizontal_span: float,
+    vertical_height: float,
 ) -> float:
     """
     Calculate the combined horizontal and vertical stabilizer mass using
@@ -90,6 +89,10 @@ def w_tailplane(
         Vertical stabilizer sweep angle [rad].
     dive_speed : float
         Design dive speed as equivalent airspeed [m/s].
+    horizontal_span : float
+            Horizontal stabilizer span [m].
+    vertical_area : float
+        Vertical stabilizer height [m].
 
     Returns
     -------
@@ -135,7 +138,7 @@ def w_tailplane(
     k_h = 1.0
 
     # Horizontal stabilizer mounted on the fin.
-    k_v = 1.0 + 0.15 * horizontal_area / vertical_area
+    k_v = 1.0 + 0.15 * (horizontal_area * horizontal_span) / (vertical_area * vertical_height)
 
     horizontal_mass = k_h * f(horizontal_f_input) * horizontal_area
 
@@ -240,7 +243,7 @@ def w_propulsion_group(
         raise ValueError("Number of engines must be positive.")
 
     k_pg = 1.15
-    k_thr = 1.18
+    k_thr = 1
 
     return k_pg * k_thr * number_of_engines * engine_mass
 
@@ -251,7 +254,7 @@ def w_airframe_services(MTOW: float) -> float:
     return .14 * MTOW
 
 
-def class_2_zero_fuel_weight(
+def class_2_operating_empty_weight(
     MTOW,
     MZFW,
     S_wing,
@@ -268,10 +271,12 @@ def class_2_zero_fuel_weight(
     width_fuselage,
     height_fuselage,
     gross_shell_area,
+    horizontal_span,
+    vertical_height
 ):
     w_total = (
         w_wing(MZFW, S_wing, b_wing, t_root_wing, sweep_wing_halfchord, n_ult)
-        + w_tailplane(S_H, S_V, sweep_H, sweep_V, V_dive)
+        + w_tailplane(S_H, S_V, sweep_H, sweep_V, V_dive, horizontal_span, vertical_height)
         + w_fuselage(V_dive, l_H, width_fuselage, height_fuselage, gross_shell_area)
         + w_control_surfaces(MTOW)
         + w_landing_gear(MTOW)
@@ -281,8 +286,8 @@ def class_2_zero_fuel_weight(
 
     return w_total
 
-def class_2_max_take_off_weight(zero_fuel_weight, fuel_weight, payload_weight = 1010):
-    return zero_fuel_weight + fuel_weight + payload_weight
+def class_2_max_take_off_weight(oem, fuel_weight, payload_weight = 1010):
+    return oem + fuel_weight + payload_weight
 
 if __name__ == "__main__":
     pass
