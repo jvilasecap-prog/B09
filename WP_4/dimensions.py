@@ -6,6 +6,7 @@ class Line:
         self.y = y
         self.L = L
     def centroid(self):
+        bla = x
     def Ixx(self):
     def Iyy(self):
 
