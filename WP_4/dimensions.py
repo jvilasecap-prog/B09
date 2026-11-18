@@ -6,14 +6,19 @@ class Line:
         self.y = y
         self.L = L
     def centroid(self):
-        bla = x
+        blubablo = x
     def Ixx(self):
+        blingblib = x
     def Iyy(self):
+        blabli = y
 
 class Point:
     def __init__(self, x,y):
         self.x = x
         self.y = y
     def centroid(self):
+        bob = x
     def Ixx(self):
+        bob = x
     def Iyy(self):
+        bob = x
