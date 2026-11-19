@@ -6,7 +6,7 @@ from scipy.interpolate import interp1d
 from scipy.integrate import simpson
 
 # XFLR5 export files
-folder = Path(__file__).resolve().parent / "xflr5 graphs"
+folder = Path(__file__).resolve().parent 
 
 # Column indices in the XFLR5 Main Wing table
 Y, CHORD, AI, CL, CDI, CM = 0, 1, 2, 3, 5, 7
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     MTOM = 7990.182          # Maximum take-off mass [kg]
     n = 1.5                  # Load factor [-]
     g = 9.81                 # Gravitational acceleration [m/s^2]
-    S = 26.6518587498352    # Total wing area [m^2]
+    S = 26.6518587498352     # Total wing area [m^2]
 
     # Calculate required overall lift coefficient
     W = MTOM * g

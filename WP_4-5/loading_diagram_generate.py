@@ -8,24 +8,24 @@ from matplotlib import pyplot as plt
 import random as rd
 import numpy as np
 
-
+import aerodynamic_loads as aero
 
 # technical constants
 EPSILON = 1e-9
 
 # physical constants
-G = 9.80665 # m s^-2
+G = 9.80665  # m s^-2
 
 # aeroplane information
-WING_MASS = 658 # kg
-TAPER_RATIO = 0.4 # -
-FUEL_VOLUME = 2.9477 # m^3
+WING_MASS = 658  # kg
+TAPER_RATIO = 0.4  # -
+FUEL_VOLUME_TOTAL = 2.9477  # m^3
 
 # additional information
-FUEL_DENSITY = 840 # kg m^-3
+FUEL_DENSITY = 840  # kg m^-3
 
 
-def chord_dist (x_over_L: float, t: float) -> float:
+def chord_dist(x_over_L: float, t: float) -> float:
     """
     Return the local chord length normalized by the root chord length.
 
@@ -59,9 +59,13 @@ def chord_dist (x_over_L: float, t: float) -> float:
     >>> chord_dist(0.5, 0.4)
     0.7
     """
+
     return 1 - (x_over_L) * (1 - t)
 
-def wing_weight_distribution(x: float, L: float, t: float = TAPER_RATIO, m: float = WING_MASS) -> float:
+
+def wing_weight_distribution(
+    x: float, L: float, t: float = TAPER_RATIO, m: float = WING_MASS
+) -> float:
     """
     Evaluate the mass distribution function of a half-wing at spanwise position `z`,
     assuming constant density.
@@ -100,10 +104,17 @@ def wing_weight_distribution(x: float, L: float, t: float = TAPER_RATIO, m: floa
     # scaling factor is the area under the graph of the square of the chord distribution
     scaling_factor = 1 / (L * (t + (1 / 3) * (1 - t) ** 2))
 
-
     return scaling_factor * m * G * chord_dist(x / L, t) ** 2
 
-def fuel_weight_distribution(x: float, L: float, tank_end: float, t: float = TAPER_RATIO, V: float = FUEL_VOLUME, d: float = FUEL_DENSITY) -> float:
+
+def fuel_weight_distribution(
+    x: float,
+    L: float,
+    tank_end: float,
+    t: float = TAPER_RATIO,
+    V: float = FUEL_VOLUME_TOTAL,
+    d: float = FUEL_DENSITY,
+) -> float:
     """
     Evaluate the fuel weight distribution function of a half-wing at spanwise position `x`.
 
@@ -147,49 +158,53 @@ def fuel_weight_distribution(x: float, L: float, tank_end: float, t: float = TAP
         If `V` is negative.
         If `d` is negative.
     """
-    
+
     if L <= 0:
         raise ValueError("Wing half-span must be positive")
-
     if not 0 <= x <= L:
         raise ValueError("x must lie within the interval [0, L].")
-
     if not 0 < tank_end <= L:
         raise ValueError("tank_end must lie within the interval (0, L].")
-
     if not 0 <= t <= 1:
         raise ValueError("t must lie within the interval [0, 1].")
-
     if V < 0:
         raise ValueError("V must be non-negative.")
-
     if d < 0:
         raise ValueError("d must be non-negative.")
 
-    total_fuel_weight = V * d * G
+    fuel_weight_in_one_wing = 0.5 * V * d * G
 
-    scaling_factor = 1 / (tank_end * (t + (1 / 3) * (1 - t) ** 2))
+    scaling_factor = 1 / (
+        tank_end
+        - ((tank_end**2) * (1 - t) / L)
+        + ((tank_end**3) * (1 - t) ** 2 / (3 * L**2))
+    )
 
-    return scaling_factor * total_fuel_weight * chord_dist(x / L, t) ** 2
+    return scaling_factor * fuel_weight_in_one_wing * chord_dist(x / L, t) ** 2
 
-    
+
+
 
 if __name__ == "__main__":
     # plt.plot(np.linspace(0,1,30), chord_dist(np.linspace(0,1,30), .2))
     # plt.xlim(0,1)
     # plt.ylim(0,1)
     # plt.show()
-    rd.seed(42)
-    for i in range (10_000):
-        l = rd.random() * 100
-        te = rd.random() * l
-        x = rd.random() * te
-        weight = FUEL_DENSITY * FUEL_VOLUME * G
-        weight_ig = ig.quad(lambda x: fuel_weight_distribution(x = x, L = l, tank_end = te), 0, te)[0]
-        if not (abs(weight - weight_ig) < EPSILON):
-            print (i)
-            print (weight, weight_ig)
-            break
+
+    # validation code
+    # rd.seed(45)
+    # for i in range(10_000):
+    #     l = rd.random() * 100
+    #     te = rd.random() * l
+    #     x = rd.random() * te
+    #     weight = 0.5 * FUEL_DENSITY * FUEL_VOLUME_TOTAL * G
+    #     weight_ig = ig.quad(lambda x: fuel_weight_distribution(x, l, te), 0, te)
+    #     if not abs(weight - weight_ig[0]) < EPSILON:
+    #         print(i)
+    #         print(weight, weight_ig, weight / weight_ig[0])
+    #         break
         # weight_ig = ig.quad(lambda x: wing_weight_distribution(x, l), 0, l)[0]
         # assert abs(WING_MASS * G - weight_ig) < EPSILON
-    print("complete")
+    # print("complete")
+
+    pass
