@@ -16,6 +16,7 @@ def get_L(A, B):
   L = np.sqrt((B[0]-A[0])**2+(B[1]-A[1])**2)
   return L
 def get_theta(A, B):
+  if (B[0])
   theta = np.atan((B[1]-A[1])/(B[0]-A[0]))
 
 def get1_L_value(A, B, t):
@@ -31,7 +32,6 @@ def get_L_values(A, B, C, D, t):
   Line_BC = get1_L_value(B, C, t)
   Line_CD = get1_L_value(C, D, t)
   Line_DA = get1_L_value(D, A, t)
-
   return Line_AB, Line_BC, Line_CD, Line_DA
 
 # there will be an array size [N, 3] where N is the number of area points and [3] is [x, y, A]
@@ -43,7 +43,7 @@ def global_Centroid(Lines, Points):
   Qy = sum(Line.y*Line.L*Line.t for Line in Lines) + sum(Points.y*Points.A)
   x_cen = Qx/(sum(Line.L*Line.t for Line in Lines) + sum(Points.A))
   y_cen = Qy/(sum(Line.L*Line.t for Line in Lines) + sum(Points.A))
-  return x_cen, y_cen
+  return np.array([x_cen, y_cen])
  
 def global_I(Lines, Points, x_cen):
   Ixx = sum(Line.Ixx(x_cen) for Line in Lines) + sum(Point.Ixx(x_cen) for Point in Points)
