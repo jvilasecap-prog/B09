@@ -51,6 +51,10 @@ class Point:
     def __init__(self, x, y, A):
         self.x = x
         self.y = y
-    def centroid(self):
-    def Ixx(self):
-    def Iyy(self):
+        self.A = area
+    def Ixx(self, D_CEN):
+        I_xx = area * (abs(y-D_CEN[1])) ** 2
+        return I_xx
+    def Iyy(self, D_CEN):
+        I_yy = area * (abs(x-D_CEN[0])) ** 2
+        return I_yy
