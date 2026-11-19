@@ -36,7 +36,7 @@ class Line:
         # calculation of moment of inertia term
         if abs(self.theta) == np.pi()/2:
             Iyy_s = (1/12)*self.t*(self.L**3)
-        elif theta == 0:
+        elif self.theta == 0:
             Iyy_s = (1/12)*self.L*(self.t**3)
         else:
             Iyy_s = (1/12)*self.t*(self.L**3)*((np.cos(self.theta))**2)
@@ -51,7 +51,7 @@ class Point:
     def __init__(self, x, y, A):
         self.x = x
         self.y = y
-        self.A = area
+        self.A = A
     def Ixx(self, D_CEN):
         I_xx = self.area * (abs(self.y-D_CEN[1])) ** 2
         return I_xx
