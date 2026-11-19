@@ -176,3 +176,12 @@ print(f"The available volume of the wings is {wing_volume} and the requried is {
 print(f"Ratio OEM/MTOM{oem/mtom_new}")
 print(f"W/S{W_S, a}")
 
+print(wc2.w_wing(
+    mzfw  ,
+    S_new,
+    b_wing,
+    c_r_wing*wing['t/c MS0313'],
+    math.atan(-c_r_wing*(1-wing['Taper ratio'])/(2*b_wing)),
+    wing['Ultimate load factor'],
+))
+
