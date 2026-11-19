@@ -20,7 +20,7 @@ class Line:
         return x_cen, y_cen
     def Ixx(self, D_CEN):
         # calculation of moment of inertia term
-        if theta == (np.pi()/2) or (-np.pi()/2):
+        if abs(theta) == np.pi()/2:
             Ixx_s = (1/12)*t*(L**3)
         elif theta == 0:
             Ixx_s = (1/12)*L*(t**3)
@@ -34,7 +34,7 @@ class Line:
         return Ixx
     def Iyy(self, D_CEN):
         # calculation of moment of inertia term
-        if theta == (np.pi()/2) or (-np.pi()/2):
+        if abs(theta) == np.pi()/2:
             Iyy_s = (1/12)*t*(L**3)
         elif theta == 0:
             Iyy_s = (1/12)*L*(t**3)
