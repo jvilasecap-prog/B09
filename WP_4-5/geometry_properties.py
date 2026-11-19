@@ -20,29 +20,29 @@ class Line:
         return x_cen, y_cen
     def Ixx(self, D_CEN):
         # calculation of moment of inertia term
-        if abs(theta) == np.pi()/2:
-            Ixx_s = (1/12)*t*(L**3)
-        elif theta == 0:
-            Ixx_s = (1/12)*L*(t**3)
+        if abs(self.theta) == np.pi()/2:
+            Ixx_s = (1/12)*self.t*(self.L**3)
+        elif self.theta == 0:
+            Ixx_s = (1/12)*self.L*(self.t**3)
         else:
-            Ixx_s = (1/12)*t*(L**3)*((np.sin(theta))**2)
+            Ixx_s = (1/12)*self.t*(self.L**3)*((np.sin(self.theta))**2)
         # calculation of steiner terms
-        Area = L*t
-        Ixx_st = Area * abs(y-D_CEN[1]) ** 2
+        Area = self.L*self.t
+        Ixx_st = Area * abs(self.y-D_CEN[1]) ** 2
         # summing both components
         Ixx = Ixx_s + Ixx_s
         return Ixx
     def Iyy(self, D_CEN):
         # calculation of moment of inertia term
-        if abs(theta) == np.pi()/2:
-            Iyy_s = (1/12)*t*(L**3)
+        if abs(self.theta) == np.pi()/2:
+            Iyy_s = (1/12)*self.t*(self.L**3)
         elif theta == 0:
-            Iyy_s = (1/12)*L*(t**3)
+            Iyy_s = (1/12)*self.L*(self.t**3)
         else:
-            Iyy_s = (1/12)*t*(L**3)*((np.cos(theta))**2)
+            Iyy_s = (1/12)*self.t*(self.L**3)*((np.cos(self.theta))**2)
         # calculation of steiner terms
-        Area = L*t
-        Iyy_st = Area * abs(x-D_CEN[0]) ** 2
+        Area = self.L*self.t
+        Iyy_st = Area * abs(self.x-D_CEN[0]) ** 2
         # summing both components
         Iyy = Iyy_s + Iyy_s
         return Iyy
@@ -53,8 +53,8 @@ class Point:
         self.y = y
         self.A = area
     def Ixx(self, D_CEN):
-        I_xx = area * (abs(y-D_CEN[1])) ** 2
+        I_xx = self.area * (abs(self.y-D_CEN[1])) ** 2
         return I_xx
     def Iyy(self, D_CEN):
-        I_yy = area * (abs(x-D_CEN[0])) ** 2
+        I_yy = self.area * (abs(self.x-D_CEN[0])) ** 2
         return I_yy
