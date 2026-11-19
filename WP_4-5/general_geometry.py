@@ -16,8 +16,14 @@ def get_L(A, B):
   L = np.sqrt((B[0]-A[0])**2+(B[1]-A[1])**2)
   return L
 def get_theta(A, B):
-  if (B[0])
-  theta = np.atan((B[1]-A[1])/(B[0]-A[0]))
+  if (B[0]- A[0]) == 0:
+     if (B[1] - A[1]) > 0:
+        theta = np.pi/2
+     if (B[1] - A[1]) < 0:
+        theta = -np.pi/2
+  else:
+    theta = np.atan((B[1]-A[1])/(B[0]-A[0]))
+  return theta
 
 def get1_L_value(A, B, t):
     L = get_L(A, B)
@@ -49,5 +55,7 @@ def global_I(Lines, Points, x_cen):
   Ixx = sum(Line.Ixx(x_cen) for Line in Lines) + sum(Point.Ixx(x_cen) for Point in Points)
   Iyy = sum(Line.Iyy(x_cen) for Line in Lines) + sum(Point.Iyy(x_cen) for Point in Points)
   return Ixx, Iyy
+
+
   
   
