@@ -22,8 +22,3 @@ c_TE = 0.8
 
 yLE= np.array([np.interp(c_LE, x_lower, y_lower), np.interp(c_LE, x_upper, y_upper)])
 yTE= np.array([np.interp(c_TE, x_lower, y_lower), np.interp(c_TE, x_upper, y_upper)])
-
-print(x_lower)
-print(y_lower)
-
-print(yLE, yTE)
