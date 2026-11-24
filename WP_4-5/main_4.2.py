@@ -81,6 +81,13 @@ for y in y_span:
 
   i += 1
 
+def get_twist(T, J, G, y_span):
+  delta_theta  = T / (J * G)
+  theta_distr = sp.integrate.cumulative_simpson(delta_theta, y_span)
+  return theta_distr 
+  
+
+
 
 #TRY TO PLOT THE IXX AND IYY
 fig, ax = plt.subplots(figsize=(8, 5))

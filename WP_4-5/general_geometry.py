@@ -57,7 +57,7 @@ def global_I(Lines, Points, x_cen):
   return Ixx, Iyy
 
 
-def get_Area(A, B, C, D):
+def get_AreaE(A, B, C, D):
   area = 0
   area += (A[1] + B[1])*(A[0] - B[0])
   area += (B[1] + C[1])*(B[0] - C[0])
@@ -69,8 +69,8 @@ def global_J(Lines, A, B, C, D):
 
 
 
-  Area = get_Area(A, B, C, D)
-  lineintegral = sum(line.L * line.t for line in Lines)
+  Area = get_AreaE(A, B, C, D)
+  lineintegral = sum(line.L / line.t for line in Lines)
   J = 4*Area**2 / lineintegral
   return J
 
