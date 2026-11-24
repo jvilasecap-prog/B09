@@ -82,18 +82,20 @@ for y in y_span:
 
   i += 1
 
-
   
 
 
+v = gg.get_deflection(M, Ixx_list, E, y_span)
+theta = gg.get_twist(T, J_list, G, y_span)
 
 #TRY TO PLOT THE IXX AND IYY
 fig, ax = plt.subplots(figsize=(8, 5))
 ax.plot(y_span, Ixx_list, label=r"$I_{xx}$", linewidth=2)
 ax.plot(y_span, Iyy_list, label=r"$I_{yy}$", linewidth=2)
+ax.plot(y_span, J_list, label=r"$J$", linewidth=2)
 ax.set_xlabel("Spanwise position y [m]")
 ax.set_ylabel(r"Second moment of area [m$^4$]")
-ax.set_title(r"$I_{xx}$ and $I_{yy}$ along the wingspan")
+ax.set_title(r"$I_{xx}$, $I_{yy}$ and $J$ along the wingspan")
 ax.grid(True, alpha=0.3)
 ax.legend()
 plt.tight_layout()
