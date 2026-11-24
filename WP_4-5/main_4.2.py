@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 import geometry_properties as gp
 import general_geometry as gg
@@ -37,25 +37,39 @@ c_t = taper*c_r
 A = np.array([c_LE, yLE[1]])
 B = np.array([c_TE, yTE[1]])
 C = np.array([c_TE, yTE[0]])
-D = np.array([c_LE, yLE[0]])\
-t = 0.001#Preliminary value that can be change
-A_array = np.array([])
+D = np.array([c_LE, yLE[0]])
+t = 0.001#Preliminary value that can be changed
 
-Lines = gg.get_L_values(A, B, C, D, t)
-Points = gg.get_A_values(A_array)
-pos_cen = gg.global_Centroid(Lines, Points)
-Ixx, Iyy = gg.global_I(Lines, Points, pos_cen)
+n_stations = 50
+y_span = np.linspace(0, b / 2, n_stations)
+
+Ixx_list = np.zeros(n_stations)
+Iyy_list = np.zeros(n_stations)
+i = 0
+for y in y_span: 
+  c_local = c_r + (c_t - c_r) * (y / (b / 2))
+
+  #Fill in A_array with something
+  A_array = np.array([])
+
+  Lines = gg.get_L_values(A, B, C, D, t)
+  Points = gg.get_A_values(A_array)
+
+  pos_cen = gg.global_Centroid(Lines, Points)
+  Ixx, Iyy = gg.global_I(Lines, Points, pos_cen)
+
+  Ixx_list[i] = Ixx
+  Iyy_list[i] = Iyy
+  i += 1
 
 #TRY TO PLOT THE IXX AND IYY
-c = c_t + x*(c_r-c_t)/b
-def c(x):
-  c = c_t + x*(c_r-c_t)/b
-plt.figure(figsize=(7, 4))
-plt.plot(x, c_t + x*(c_r-c_t)/b, label=r"$f(x) = \sin(x)e^{-0.1x}$", linewidth=2)
-plt.title("Damped Sine Wave")
-plt.xlabel("x")
-plt.ylabel("y")
-plt.grid(True, linestyle="--", alpha=0.5)
-plt.legend()
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(y_span, Ixx_list, label=r"$I_{xx}$", linewidth=2)
+ax.plot(y_span, Iyy_list, label=r"$I_{yy}$", linewidth=2)
+ax.set_xlabel("Spanwise position y [m]")
+ax.set_ylabel(r"Second moment of area [m$^4$]")
+ax.set_title(r"$I_{xx}$ and $I_{yy}$ along the wingspan")
+ax.grid(True, alpha=0.3)
+ax.legend()
 plt.tight_layout()
 plt.show()
