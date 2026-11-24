@@ -1,5 +1,6 @@
 import numpy as np
 from geometry_properties import Line, Point
+import scipy as sp
 
 #Get the centroid, Ixx and Iyy of a geometry
 #The convention is x left y down, the wing box is a trapezoid with the following points
@@ -69,8 +70,12 @@ def global_J(Lines, A, B, C, D):
 
 
 
-  Area = get_AreaE(A, B, C, D)
-  lineintegral = sum(line.L / line.t for line in Lines)
+  Area = get_Area(A, B, C, D)
+  lineintegral = sum(line.L/ line.t for line in Lines)
   J = 4*Area**2 / lineintegral
   return J
 
+def get_deflection(M, Ixx, E, b):
+   dv = -sp.integrate.simpson(M/(E*Ixx), b)
+   v = sp.integrate.simpson(dv, b)
+   return v
