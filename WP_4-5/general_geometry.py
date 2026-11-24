@@ -57,7 +57,7 @@ def global_I(Lines, Points, x_cen):
   return Ixx, Iyy
 
 
-def area_crosssection(A, B, C, D):
+def get_Area(A, B, C, D):
   area = 0
   area += (A[1] + B[1])(A[0] - B[0])
   area += (B[1] + C[1])(B[0] - C[0])
