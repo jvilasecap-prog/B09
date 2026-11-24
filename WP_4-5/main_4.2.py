@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy as sp
 
 import geometry_properties as gp
 import general_geometry as gg
@@ -81,10 +82,7 @@ for y in y_span:
 
   i += 1
 
-def get_twist(T, J, G, y_span):
-  delta_theta  = T / (J * G)
-  theta_distr = sp.integrate.cumulative_simpson(delta_theta, y_span)
-  return theta_distr 
+
   
 
 

@@ -77,5 +77,9 @@ def global_J(Lines, A, B, C, D):
 
 def get_deflection(M, Ixx, E, b):
    dv = -sp.integrate.simpson(M/(E*Ixx), b)
-   v = sp.integrate.simpson(dv, b)
-   return v
+   v_dist = sp.integrate.cumulative_simpson(dv, b)
+   return v_dist
+def get_twist(T, J, G, y_span):
+  delta_theta  = T / (J * G)
+  theta_distr = sp.integrate.cumulative_simpson(delta_theta, y_span)
+  return theta_distr 
