@@ -34,10 +34,19 @@ taper = 0.4
 c_r = 2*S/(b*(1+taper))
 c_t = taper*c_r
 
+#Points for unit chord with coordinate system LE
 A = np.array([c_LE, yLE[1]])
 B = np.array([c_TE, yTE[1]])
 C = np.array([c_TE, yTE[0]])
 D = np.array([c_LE, yLE[0]])
+
+# new points (origin at B, x left, y down)
+A_new = B - A
+B_new = B - B   # -> [0, 0]
+C_new = B - C
+D_new = B - D
+print(f"A {A} B {B} C {C} D {D}")
+print(f"A {A_new} B {B_new} C {C_new} D {D_new}")
 t = 0.001#Preliminary value that can be changed
 
 n_stations = 50
@@ -45,9 +54,16 @@ y_span = np.linspace(0, b / 2, n_stations)
 
 Ixx_list = np.zeros(n_stations)
 Iyy_list = np.zeros(n_stations)
+
+J_list = np.zeros(n_stations)
 i = 0
 for y in y_span: 
+  #Scale the points
   c_local = c_r + (c_t - c_r) * (y / (b / 2))
+  A = np.array([c_LE, yLE[1]])*c_local
+  B = np.array([c_TE, yTE[1]])*c_local
+  C = np.array([c_TE, yTE[0]])*c_local
+  D = np.array([c_LE, yLE[0]])*c_local
 
   #Fill in A_array with something
   A_array = np.array([])
@@ -57,10 +73,14 @@ for y in y_span:
 
   pos_cen = gg.global_Centroid(Lines, Points)
   Ixx, Iyy = gg.global_I(Lines, Points, pos_cen)
+  J = gg.global_J(Lines, A, B, C, D)
 
   Ixx_list[i] = Ixx
   Iyy_list[i] = Iyy
+  J_list[i] = J
+
   i += 1
+
 
 #TRY TO PLOT THE IXX AND IYY
 fig, ax = plt.subplots(figsize=(8, 5))

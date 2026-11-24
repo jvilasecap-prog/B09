@@ -45,10 +45,10 @@ def get_A_values(A_array):
     return [Point(float(x), float(y), float(a)) for x, y, a in A_array]
   
 def global_Centroid(Lines, Points):
-  Qx = sum(Line.x*Line.L*Line.t for Line in Lines) + sum(Points.x*Points.A)
-  Qy = sum(Line.y*Line.L*Line.t for Line in Lines) + sum(Points.y*Points.A)
-  x_cen = Qx/(sum(Line.L*Line.t for Line in Lines) + sum(Points.A))
-  y_cen = Qy/(sum(Line.L*Line.t for Line in Lines) + sum(Points.A))
+  Qx = sum(Line.x*Line.L*Line.t for Line in Lines) + sum(Point.x*Point.A for Point in Points)
+  Qy = sum(Line.y*Line.L*Line.t for Line in Lines) + sum(Point.y*Point.A for Point in Points)
+  x_cen = Qx/(sum(Line.L*Line.t for Line in Lines) + sum(Point.A for Point in Points))
+  y_cen = Qy/(sum(Line.L*Line.t for Line in Lines) + sum(Point.A for Point in Points))
   return np.array([x_cen, y_cen])
  
 def global_I(Lines, Points, x_cen):
@@ -59,10 +59,18 @@ def global_I(Lines, Points, x_cen):
 
 def get_Area(A, B, C, D):
   area = 0
-  area += (A[1] + B[1])(A[0] - B[0])
-  area += (B[1] + C[1])(B[0] - C[0])
-  area += (C[1] + D[1])(C[0] - D[0])  
-  area += (D[1] + A[1])(D[0] - A[0])
+  area += (A[1] + B[1])*(A[0] - B[0])
+  area += (B[1] + C[1])*(B[0] - C[0])
+  area += (C[1] + D[1])*(C[0] - D[0])  
+  area += (D[1] + A[1])*(D[0] - A[0])
   return 0.5 * area
   
-  
+def global_J(Lines, A, B, C, D):
+
+
+
+  Area = get_Area(A, B, C, D)
+  lineintegral = sum(line.L * line.t for line in Lines)
+  J = 4*Area**2 / lineintegral
+  return J
+
