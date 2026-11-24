@@ -45,14 +45,11 @@ def get_A_values(A_array):
     return [Point(float(x), float(y), float(a)) for x, y, a in A_array]
   
 def global_Centroid(Lines, Points):
-    line_area = sum(line.L * line.t for line in Lines)
-    pt_area = sum(pt.A for pt in Points)
-    total_area = line_area + pt_area
-
-    Qx = sum(line.x * line.L * line.t for line in Lines) + sum(pt.x * pt.A for pt in Points)
-    Qy = sum(line.y * line.L * line.t for line in Lines) + sum(pt.y * pt.A for pt in Points)
-
-    return np.array([Qx / total_area, Qy / total_area])
+  Qx = sum(Line.x*Line.L*Line.t for Line in Lines) + sum(Points.x*Points.A)
+  Qy = sum(Line.y*Line.L*Line.t for Line in Lines) + sum(Points.y*Points.A)
+  x_cen = Qx/(sum(Line.L*Line.t for Line in Lines) + sum(Points.A))
+  y_cen = Qy/(sum(Line.L*Line.t for Line in Lines) + sum(Points.A))
+  return np.array([x_cen, y_cen])
  
 def global_I(Lines, Points, x_cen):
   Ixx = sum(Line.Ixx(x_cen) for Line in Lines) + sum(Point.Ixx(x_cen) for Point in Points)
@@ -60,5 +57,12 @@ def global_I(Lines, Points, x_cen):
   return Ixx, Iyy
 
 
+def area_crosssection(A, B, C, D):
+  area = 0
+  area += (A[1] + B[1])(A[0] - B[0])
+  area += (B[1] + C[1])(B[0] - C[0])
+  area += (C[1] + D[1])(C[0] - D[0])  
+  area += (D[1] + A[1])(D[0] - A[0])
+  return 0.5 * area
   
   
