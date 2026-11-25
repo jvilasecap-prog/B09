@@ -17,13 +17,7 @@ def get_L(A, B):
   L = np.sqrt((B[0]-A[0])**2+(B[1]-A[1])**2)
   return L
 def get_theta(A, B):
-  if (B[0]- A[0]) == 0:
-     if (B[1] - A[1]) > 0:
-        theta = np.pi/2
-     if (B[1] - A[1]) < 0:
-        theta = -np.pi/2
-  else:
-    theta = np.atan((B[1]-A[1])/(B[0]-A[0]))
+  theta = np.arctan2(B[1]-A[1],B[0]-A[0])
   return theta
 
 def get1_L_value(A, B, t):
@@ -72,11 +66,11 @@ def global_J(Lines, A, B, C, D):
   J = 4*Area**2 / lineintegral
   return J
 
-def get_deflection(M, Ixx, E, y_span):
-   dv = -sp.integrate.simpson(M/(E*Ixx), b)
-   v_dist = sp.integrate.cumulative_simpson(dv, b)
+def get_deflection(M, Ixx, E, z_span):
+   dv = -sp.integrate.cumulative_simpson(M/(E*Ixx), x=z_span, initial=0)
+   v_dist = sp.integrate.cumulative_simpson(dv, x=z_span, initial=0)
    return v_dist
-def get_twist(T, J, G, y_span):
+def get_twist(T, J, G, z_span):
   delta_theta  = T / (J * G)
-  theta_distr = sp.integrate.cumulative_simpson(delta_theta, y_span)
+  theta_distr = sp.integrate.cumulative_simpson(delta_theta, x=z_span, initial=0)
   return theta_distr 
