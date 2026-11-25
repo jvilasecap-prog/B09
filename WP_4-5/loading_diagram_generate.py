@@ -24,10 +24,10 @@ G = 9.80665  # m s^-2
 WING_MASS = 658  # kg
 TAPER_RATIO = 0.4  # -
 FUEL_VOLUME_TOTAL = 2.9477  # m^3
-WING_SPAN = 17.12222083 # m
-WING_AREA = 26.6518587498352 # m^2
+WING_SPAN = 17.12222083  # m
+WING_AREA = 26.6518587498352  # m^2
 WING_MTOM = 7990.18
-MAC_LEN = 1.651865461 # m
+MAC_LEN = 1.651865461  # m
 
 # flight conditions
 rho = 0.2874
@@ -36,6 +36,7 @@ Load_factor = 1.5
 
 # additional information
 FUEL_DENSITY = 840  # kg m^-3
+
 
 def chord_dist(z_over_L: float, t: float) -> float:
     """
@@ -109,7 +110,7 @@ def wing_weight_distribution(
     if L <= 0:
         raise ValueError("Wing half-span must be positive")
     if not (0 <= z <= L):
-        raise ValueError("Spanwise position must be between 0 and the half-span")
+        return 0.
     if not (0 < t < 1):
         raise ValueError("Taper ratio must be between 0 and 1")
 
@@ -137,9 +138,9 @@ def fuel_weight_distribution(
 
     Parameters
     ----------
-    x : float
+    z : float
         Spanwise position along the half-wing, measured from the wing root.
-        Must lie within the inclusive interval [0, L].
+        If outside of [0, L], returns 0.
     L : float
         Half-span of the wing.
     tank_end : float
@@ -158,8 +159,8 @@ def fuel_weight_distribution(
     Returns
     -------
     float
-        Fuel weight per unit span at position `x`. Returns zero when `x` is
-        outboard of `tank_end`.
+        Fuel weight per unit span at position `z`. Returns zero when `z` is
+        outboard of `tank_end` or inboard of root.
 
     Raises
     ------
@@ -174,7 +175,7 @@ def fuel_weight_distribution(
     if L <= 0:
         raise ValueError("Wing half-span must be positive")
     if not 0 <= z <= tank_end:
-        raise ValueError("x must lie within the interval [0, L].")
+        return 0.
     if not 0 < tank_end <= L:
         raise ValueError("tank_end must lie within the interval (0, L].")
     if not 0 <= t <= 1:
@@ -312,29 +313,35 @@ def read_coeff_data(file_path: str | Path) -> np.typing.NDArray[np.float64]:
                         cl = float(values[3])
                         cm_geom = float(values[6])
                     except ValueError:
-                        print("every minute in the project, an exception is handled without any output to console")
+                        print(
+                            "every minute in the project, an exception is handled without any output to console"
+                        )
                         continue
 
                     rows.append((y_span, cl, cm_geom))
 
     if not rows:
         raise ValueError("No spanwise data table was found in the file.")
-    
+
     return np.asarray(rows, dtype=float)
 
-def get_loadings_from_coeff_halfspan(coeff: np.typing.NDArray, rho: float, vel: float, ref_S = WING_AREA, ref_c = MAC_LEN) -> np.typing.NDArray:
-    coeff[:,1:] *= -(1/2) * rho * vel ** 2 * ref_S
-    coeff[:,2] *= ref_c
-    return coeff[coeff[:,0] > 0.]
 
-def shear_force_diagram(
-        ax: plt.Axes,
-        half_span: float = WING_SPAN / 2,
-        **kwargs: np.typing.NDArray | tuple[function, float, float] | tuple[float, float],
+def get_loadings_from_coeff_halfspan(
+    coeff: np.typing.NDArray, rho: float, vel: float, ref_S=WING_AREA, ref_c=MAC_LEN
+) -> np.typing.NDArray:
+    coeff[:, 1:] *= -(1 / 2) * rho * vel**2 * ref_S
+    coeff[:, 2] *= ref_c
+    return coeff[coeff[:, 0] > 0.0]
+
+
+def shear_force_fbd(
+    ax: plt.Axes,
+    half_span: float = WING_SPAN / 2,
+    **kwargs: np.typing.NDArray | tuple[function, float, float] | tuple[float, float],
 ) -> None:
     """ """
     # Plot the wing as a cantilevered beam
-    
+
     ax.plot(
         [0, half_span],
         [0, 0],
@@ -343,11 +350,11 @@ def shear_force_diagram(
         solid_capstyle="butt",
     )
     ax.plot(
-            [0, 0],
-            [-half_span / 20, half_span / 20],
-            color="black",
-            linewidth=6,
-            solid_capstyle="butt",
+        [0, 0],
+        [-half_span / 20, half_span / 20],
+        color="black",
+        linewidth=6,
+        solid_capstyle="butt",
     )
 
     # info for limits of the axis
@@ -386,20 +393,70 @@ def shear_force_diagram(
                 n_rows = val.shape[0]
                 for i in np.linspace(0, n_rows - 1, 10):
                     e = round(i)
-                    draw_force(ax=ax, x=val[e,0], y_start=0,y_end=val[e,1])
-                ax.plot(
-                    val[:,0], val[:,1]
+                    draw_force(ax=ax, x=val[e, 0], y_start=0, y_end=val[e, 1])
+                ax.plot(val[:, 0], val[:, 1])
+                largest_loading_value = max(
+                    largest_loading_value, np.max(np.abs(val[:, 1]))
                 )
-                largest_loading_value = max(largest_loading_value, np.max(np.abs(val[:,1])))
             case "distr_func":
-                pass
+                data_z = np.linspace(val[1], val[2], 100)
+                data_y = np.array([val[0](z) for z in data_z])
+                for i in range(0, 100, 10):
+                    draw_force(ax=ax, x=data_z[i], y_start=0, y_end=data_y[i])
+                ax.plot(data_z, data_y)
+                largest_loading_value = max(
+                    largest_loading_value, np.max(np.abs(data_y))
+                )
             case _:
-                raise ValueError(f"The type of loading '{key}' could not be determined.")
+                raise ValueError(
+                    f"The type of loading '{key}' could not be determined."
+                )
 
-        print(largest_loading_value)
         ax.set_ylim(-largest_loading_value, largest_loading_value)
 
 
+def internal_any(
+    half_span: float = WING_SPAN / 2,
+    precision: int = 100,
+    **kwargs: np.typing.NDArray | tuple[function, float, float] | tuple[float, float],
+) -> np.typing.NDArray:
+
+    # generate the initial internal loading
+    loading = np.column_stack(
+        (
+            np.linspace(0, half_span, precision),
+            np.zeros(precision),
+        )
+    )
+
+    # handle the loadings provided
+    for key, val in kwargs.items():
+
+        # determine the type of the argument considered
+        if isinstance(val, tuple) and len(val)==2 and isinstance(val[0], float) and isinstance(val[1], float):
+            process_type = "point_force"
+        elif isinstance(val, np.ndarray):
+            distr = ip.interp1d(val[:,0], val[:,1], bounds_error=False, fill_value=0.0)
+            process_type = "distr"
+        elif callable(val):
+            distr = val
+            process_type = "distr"
+        else:
+            process_type = "unknown"
+
+        match process_type:
+            case "point_force":
+                application_z, magnitude = val
+                last_index = np.flatnonzero(loading[:, 0] <= application_z)[-1]
+                loading[:last_index, 1] += magnitude
+            case "distr":
+                for i in range(precision):
+                    loading[i, 1] += ig.quad(distr, loading[i,0], half_span)[0]
+            case _:
+                raise ValueError(
+                    f"The type of loading '{key}' could not be determined."
+                )
+    return loading
 
 
 
@@ -503,12 +560,36 @@ if __name__ == "__main__":
     ##############################################################################
     """
 
+    fig, (shear, moment) = plt.subplots(1,2) # 0
 
-    fig, axs = plt.subplots()
-    # print(read_coeff_data(Path(__file__).parent.resolve() / "MainWing_a=0.00_v=10.00ms.txt"))
-    shear_force_diagram(ax=axs, lift=get_loadings_from_coeff_halfspan(read_coeff_data(Path(__file__).parent.resolve() / "MainWing_a=0.00_v=10.00ms.txt"),1.2255,1)[:,0:2])
-    axs.set_aspect("equal")
-    axs.invert_yaxis()
-    axs.set_xlabel("z")
-    axs.set_ylabel("y")
+    # define loadings
+    force_a = (0., -10.)
+    force_b = (6., -25.)
+    force_2m = (2., 15.)
+    moment_3m = (3., -20.)
+    force_distr = np.array([[4., 10.], [6., 10.]])
+
+    # calculate internal forces
+    shear_loading = internal_any(
+        half_span=6.,
+        force_a=force_a,
+        force_b=force_b,
+        force_2m=force_2m,
+        force_distr=force_distr,
+    )
+    moment_loading = internal_any(
+        half_span=6.,
+        moment_3m=moment_3m,
+        moment_shear=np.column_stack((shear_loading[:,0], -shear_loading[:,1]))
+    )
+
+    # draw internal forces
+    shear.plot(shear_loading[:,0], shear_loading[:,1])
+    moment.plot(moment_loading[:,0], moment_loading[:,1])
+
+    # format and show the graphs
+    shear.set_xlabel("z")
+    moment.set_xlabel("z")
+    shear.set_ylabel("internal shear force")
+    moment.set_ylabel("interal bending moment")
     plt.show()
