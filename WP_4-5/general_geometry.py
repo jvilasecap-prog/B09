@@ -1,5 +1,6 @@
 import numpy as np
 from geometry_properties import Line, Point
+import scipy as sp
 
 #Get the centroid, Ixx and Iyy of a geometry
 #The convention is x left y down, the wing box is a trapezoid with the following points
@@ -16,13 +17,7 @@ def get_L(A, B):
   L = np.sqrt((B[0]-A[0])**2+(B[1]-A[1])**2)
   return L
 def get_theta(A, B):
-  if (B[0]- A[0]) == 0:
-     if (B[1] - A[1]) > 0:
-        theta = np.pi/2
-     if (B[1] - A[1]) < 0:
-        theta = -np.pi/2
-  else:
-    theta = np.atan((B[1]-A[1])/(B[0]-A[0]))
+  theta = np.arctan2(B[1]-A[1],B[0]-A[0])
   return theta
 
 def get1_L_value(A, B, t):
@@ -45,10 +40,10 @@ def get_A_values(A_array):
     return [Point(float(x), float(y), float(a)) for x, y, a in A_array]
   
 def global_Centroid(Lines, Points):
-  Qx = sum(Line.x*Line.L*Line.t for Line in Lines) + sum(Points.x*Points.A)
-  Qy = sum(Line.y*Line.L*Line.t for Line in Lines) + sum(Points.y*Points.A)
-  x_cen = Qx/(sum(Line.L*Line.t for Line in Lines) + sum(Points.A))
-  y_cen = Qy/(sum(Line.L*Line.t for Line in Lines) + sum(Points.A))
+  Qx = sum(Line.x*Line.L*Line.t for Line in Lines) + sum(Point.x*Point.A for Point in Points)
+  Qy = sum(Line.y*Line.L*Line.t for Line in Lines) + sum(Point.y*Point.A for Point in Points)
+  x_cen = Qx/(sum(Line.L*Line.t for Line in Lines) + sum(Point.A for Point in Points))
+  y_cen = Qy/(sum(Line.L*Line.t for Line in Lines) + sum(Point.A for Point in Points))
   return np.array([x_cen, y_cen])
  
 def global_I(Lines, Points, x_cen):
@@ -57,5 +52,25 @@ def global_I(Lines, Points, x_cen):
   return Ixx, Iyy
 
 
+def get_Area(A, B, C, D):
+  area = 0
+  area += (A[1] + B[1])*(A[0] - B[0])
+  area += (B[1] + C[1])*(B[0] - C[0])
+  area += (C[1] + D[1])*(C[0] - D[0])  
+  area += (D[1] + A[1])*(D[0] - A[0])
+  return 0.5 * area
   
-  
+def global_J(Lines, A, B, C, D):
+  Area = get_Area(A, B, C, D)
+  lineintegral = sum(line.L/ line.t for line in Lines)
+  J = 4*Area**2 / lineintegral
+  return J
+
+def get_deflection(M, Ixx, E, z_span):
+   dv = -sp.integrate.cumulative_simpson(M/(E*Ixx), x=z_span, initial=0)
+   v_dist = sp.integrate.cumulative_simpson(dv, x=z_span, initial=0)
+   return v_dist
+def get_twist(T, J, G, z_span):
+  delta_theta  = T / (J * G)
+  theta_distr = sp.integrate.cumulative_simpson(delta_theta, x=z_span, initial=0)
+  return theta_distr 
