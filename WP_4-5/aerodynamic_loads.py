@@ -11,6 +11,15 @@ folder = Path(__file__).resolve().parent
 # Column indices in the XFLR5 Main Wing table
 Y, CHORD, AI, CL, CDI, CM = 0, 1, 2, 3, 5, 7
 
+# Flight conditions from WP4.3
+RHO = 0.2874             # Air density [kg/m^3]
+V = 200.6                # True airspeed [m/s]
+MTOM = 7990.182          # Maximum take-off mass [kg]
+N = 1.5                  # Load factor [-]
+G = 9.80665              # Gravitational acceleration [m/s^2]
+S = 26.6518587498352     # Total wing area [m^2]
+
+
 
 # Read XFLR5 data for the positive half-wing
 def read_xflr5(filename):
@@ -135,25 +144,25 @@ def cdi(y_pos, CL_target):
 
 
 # Distributed lift [N/m]
-def lift(y_pos, rho, V, CL_target):
+def lift(y_pos, rho=RHO, V=V, CL_target=required_cl(N, MTOM*G, RHO, V, S)):
     q = 0.5 * rho * V**2
     return q * c(y_pos) * cl(y_pos, CL_target)
 
 
 # Distributed induced drag [N/m]
-def drag(y_pos, rho, V, CL_target):
+def drag(y_pos, rho=RHO, V=V, CL_target=required_cl(N, MTOM*G, RHO, V, S)):
     q = 0.5 * rho * V**2
     return q * c(y_pos) * cdi(y_pos, CL_target)
 
 
 # Distributed pitching moment [(N m)/m]
-def pitching_moment(y_pos, rho, V, CL_target):
+def pitching_moment(y_pos, rho=RHO, V=V, CL_target=required_cl(N, MTOM*G, RHO, V, S)):
     q = 0.5 * rho * V**2
     return q * c(y_pos)**2 * cm(y_pos, CL_target)
 
 
 # Distributed force normal to the wing chord [N/m]
-def normal_force(y_pos, rho, V, CL_target):
+def normal_force(y_pos, rho=RHO, V=V, CL_target=required_cl(N, MTOM*G, RHO, V, S)):
     alpha_rad = np.deg2rad(alpha_deg(CL_target))
     return (
         lift(y_pos, rho, V, CL_target) * np.cos(alpha_rad)
@@ -164,22 +173,15 @@ def normal_force(y_pos, rho, V, CL_target):
 # Flight conditions, checks and plots
 if __name__ == "__main__":
 
-    # Flight conditions from WP4.3
-    rho = 0.2874             # Air density [kg/m^3]
-    V = 200.6                # True airspeed [m/s]
-    MTOM = 7990.182          # Maximum take-off mass [kg]
-    n = 1.5                  # Load factor [-]
-    g = 9.81                 # Gravitational acceleration [m/s^2]
-    S = 26.6518587498352     # Total wing area [m^2]
-
+    
+    W = MTOM * G
     # Calculate required overall lift coefficient
-    W = MTOM * g
-    q = 0.5 * rho * V**2
-    CL_target = required_cl(n, W, rho, V, S)
+    q = 0.5 * RHO * V**2
+    CL_target = required_cl(N, W, RHO, V, S)
 
     print("Flight conditions")
     print(f"Dynamic pressure = {q:.2f} Pa")
-    print(f"Required total lift = {n * W:.2f} N")
+    print(f"Required total lift = {N * W:.2f} N")
     print(f"Required CL = {CL_target:.6f}")
     print(f"Angle of attack = {alpha_deg(CL_target):.3f} deg")
 
@@ -189,24 +191,24 @@ if __name__ == "__main__":
     # Evaluate the functions at one example spanwise position
     y_pos = 4.25
     print(f"\nAerodynamic loads at y = {y_pos:.2f} m")
-    print(f"Lift = {lift(y_pos, rho, V, CL_target):.3f} N/m")
-    print(f"Drag = {drag(y_pos, rho, V, CL_target):.3f} N/m")
+    print(f"Lift = {lift(y_pos, RHO, V, CL_target):.3f} N/m")
+    print(f"Drag = {drag(y_pos, RHO, V, CL_target):.3f} N/m")
     print(
         f"Pitching moment = "
-        f"{pitching_moment(y_pos, rho, V, CL_target):.3f} Nm/m"
+        f"{pitching_moment(y_pos, RHO, V, CL_target):.3f} Nm/m"
     )
     print(
         f"Normal force = "
-        f"{normal_force(y_pos, rho, V, CL_target):.3f} N/m"
+        f"{normal_force(y_pos, RHO, V, CL_target):.3f} N/m"
     )
 
     # Interpolation plot domain: only the XFLR5 station range
     y_plot = np.linspace(span_stations[0], span_stations[-1], 300)
 
-    L = lift(y_plot, rho, V, CL_target)
-    D = drag(y_plot, rho, V, CL_target)
-    M = pitching_moment(y_plot, rho, V, CL_target)
-    N = normal_force(y_plot, rho, V, CL_target)
+    L = lift(y_plot)
+    D = drag(y_plot)
+    M = pitching_moment(y_plot)
+    norm = normal_force(y_plot)
 
     # Plot the four aerodynamic loading distributions
     fig, axes = plt.subplots(2, 2, figsize=(11, 7))
@@ -215,7 +217,7 @@ if __name__ == "__main__":
         (L, "Lift distribution", "Lift [N/m]"),
         (D, "Induced drag distribution", "Drag [N/m]"),
         (M, "Pitching moment distribution", "Moment [Nm/m]"),
-        (N, "Normal force distribution", "Normal force [N/m]")
+        (norm, "Normal force distribution", "Normal force [N/m]")
     ]
 
     for ax, (values, plot_title, ylabel) in zip(axes.flat, plots):
@@ -234,10 +236,10 @@ if __name__ == "__main__":
     y_check = np.linspace(0.0, half_span, 2000)
 
     L_integrated = 2 * simpson(
-        lift(y_check, rho, V, CL_target), x=y_check
+        lift(y_check, RHO, V, CL_target), x=y_check
     )
 
-    L_required = n * W
+    L_required = N * W
     lift_error_pct = 100 * (L_integrated - L_required) / L_required
 
     print("\nWhole-wing lift validation")
