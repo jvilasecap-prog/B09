@@ -68,10 +68,10 @@ def main():
   for y in z_span: 
     #Scale the points
     c_local = c_r + (c_t - c_r) * (y / (b / 2))
-    A = np.array([c_LE, yLE[1]])*c_local
-    B = np.array([c_TE, yTE[1]])*c_local
-    C = np.array([c_TE, yTE[0]])*c_local
-    D = np.array([c_LE, yLE[0]])*c_local
+    A = A_new*c_local
+    B = B_new*c_local
+    C = C_new*c_local
+    D = D_new*c_local
 
     #Fill in A_array with something
     A_array = np.array([])
